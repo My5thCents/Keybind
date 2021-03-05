@@ -1,7 +1,5 @@
 package model;
 
-import java.io.Serializable;
-
 public class Hotkey {
     /**
      * Virtual keycode of the hotkey.
