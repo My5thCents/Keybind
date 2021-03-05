@@ -4,33 +4,29 @@ import java.awt.*;
 import java.awt.event.KeyEvent;
 import javax.swing.JFrame;
 
-public class Action extends Hotkey{
+public class Action implements InputEmulator{
+
     /**
-     * Robot which simulates user key presses
+     * Robot to simulate button presses
      */
     Robot robot;
 
     /**
-     * Constructs an immutable hotkey.
-     *
-     * @param keyCode  The virtual keycode of the hotkey.
-     * @param id       The unique ID of the hotkey.
-     * @param modifier The modifier of the hotkey.
+     * Constructor to create a new robot to control key presses
+     * @throws AWTException
      */
-    public Action(int keyCode, int id, Modifier modifier) throws AWTException {
-        super(keyCode, id, modifier);
+    public Action() throws AWTException {
         this.robot = new Robot();
-
     }
 
     /**
-     * Simulates the pressing of the buttons specified by modifier and keycode
+     * Sends a given key to be emulated.
+     * @param keyCode The virtual keycode of the key.
+     * @param release True if the key is to be a key release input.
      */
-    public void press(){
-        robot.keyPress(this.getModifier().val());
-        robot.keyPress(this.getKeyCode());
-        robot.keyRelease(this.getModifier().val());
-        robot.keyRelease(this.getKeyCode());
+    @Override
+    public void sendKey(int keyCode, boolean release) {
+        robot.keyPress(keyCode);
+        robot.keyRelease(keyCode);
     }
-
 }
