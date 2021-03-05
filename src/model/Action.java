@@ -1,22 +1,23 @@
 package model;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import javax.swing.JFrame;
 
-public class Action implements InputEmulator{
-
+public class Action extends Hotkey implements InputEmulator{
     /**
-     * Robot to simulate button presses
+     * Robot which simulates user key presses
      */
     Robot robot;
 
     /**
-     * Constructor to create a new robot to control key presses
-     * @throws AWTException
+     * Constructs an immutable hotkey.
+     * @param keyCode  The virtual keycode of the hotkey.
+     * @param id       The unique ID of the hotkey.
+     * @param modifier The modifier of the hotkey.
      */
-    public Action() throws AWTException {
+    public Action(int keyCode, int id, Modifier modifier) throws AWTException {
+        super(keyCode, id, modifier);
         this.robot = new Robot();
+
     }
 
     /**
@@ -26,7 +27,9 @@ public class Action implements InputEmulator{
      */
     @Override
     public void sendKey(int keyCode, boolean release) {
-        robot.keyPress(keyCode);
-        robot.keyRelease(keyCode);
+        if (release) {
+            robot.keyPress(this.getKeyCode());
+            robot.keyRelease(this.getKeyCode());
+        }
     }
 }
