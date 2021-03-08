@@ -5,7 +5,10 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinUser;
 
 import java.util.HashMap;
-import java.util.Stack;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /** Singleton class which interfaces with Windows OS. */
 public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmulator, OSSettingsWriter,
@@ -21,13 +24,16 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     private boolean stop = false;
 
     /** Stack for hotkeys to be registered. */
-    private Stack<Hotkey> hotkeyRegStack;
+    private BlockingQueue<Hotkey> hotkeyRegQueue;
+    /** Stack for keys to be emulated. */
+    private BlockingQueue<WinUser.INPUT[]> keySendQueue;
 
     private OSInterface() {
         registeredKeys = new HashMap<>();
         pressedKeys = new HashMap<>();
         msg = new WinUser.MSG();
-        hotkeyRegStack = new Stack<>();
+        hotkeyRegQueue = new LinkedBlockingQueue<>();
+        keySendQueue = new LinkedBlockingQueue<>();
     }
 
     /**
@@ -63,8 +69,18 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 }
             }
 
-            while (!hotkeyRegStack.isEmpty()) {
-                if (!registerHotkeyThread(hotkeyRegStack.pop())) {
+            Queue<Hotkey> toReg = new LinkedList<>();
+            Queue<WinUser.INPUT[]> toSendKeys = new LinkedList<>();
+            hotkeyRegQueue.drainTo(toReg);
+            keySendQueue.drainTo(toSendKeys);
+
+            while (!toSendKeys.isEmpty()) {
+                WinUser.INPUT[] inputs = keySendQueue.remove();
+                user32.SendInput(new WinDef.DWORD(inputs.length), inputs, inputs[0].size());
+            }
+
+            while (!toReg.isEmpty()) {
+                if (!registerHotkeyThread(toReg.remove())) {
                     System.out.println("Error registering hotkey!");
                 }
             }
@@ -87,7 +103,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         if (registeredKeys.containsKey(hotkey.getID()))
             return false;
 
-        hotkeyRegStack.push(new Hotkey(hotkey.getKeyCode(), hotkey.getID(), hotkey.getModifier()));
+        hotkeyRegQueue.add(new Hotkey(hotkey.getKeyCode(), hotkey.getID(), hotkey.getModifier()));
         return true;
     }
 
@@ -139,6 +155,16 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     @Override
     public void sendKey(int keyCode, boolean release) {
+        if (keyCode > 0 && keyCode < 255) {
+            WinUser.INPUT inputs[] = new WinUser.INPUT[1];
 
+            inputs[0] = new WinUser.INPUT();
+
+            // Set input type to keyboard_input = 1
+            inputs[0].type = new WinUser.DWORD(1);
+            inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
+
+            keySendQueue.add(inputs);
+        }
     }
 }
