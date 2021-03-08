@@ -5,9 +5,11 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinUser;
 
 import java.util.HashMap;
+import java.util.Stack;
 
-/** Singleton class which interfaces with windows. */
-public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmulator, OSSettingsWriter {
+/** Singleton class which interfaces with Windows OS. */
+public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmulator, OSSettingsWriter,
+        Runnable {
     private static OSInterface instance = null;
 
     private User32 user32 = User32.INSTANCE;
@@ -16,10 +18,17 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     private HashMap<Integer, Boolean> pressedKeys;
     private WinUser.MSG msg;
 
+    /** Stack for hotkeys to be registered. */
+    private Stack<Hotkey> hotkeyRegStack;
+    /** Stack for hotkey presses to be checked. */
+    private Stack<Integer> wasPressedStack;
+
     private OSInterface() {
         registeredKeys = new HashMap<>();
         pressedKeys = new HashMap<>();
         msg = new WinUser.MSG();
+        hotkeyRegStack = new Stack<>();
+        wasPressedStack = new Stack<>();
     }
 
     /**
@@ -33,16 +42,24 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     }
 
     /**
-     * Must be called in a loop to check the message queue of the window.
+     * Main thread for checking messages and processing requests.
      */
-    public void checkMessages() {
-        boolean hotkeyMsg = user32.PeekMessage(msg, hwnd, 0, 0, 1);
-        if (hotkeyMsg) {
-            if (msg.message == User32.WM_HOTKEY) {
-                if (registeredKeys.containsKey(msg.wParam.intValue())) {
-                    pressedKeys.put(msg.wParam.intValue(), true);
+    public void run() {
+        boolean isMsg = user32.PeekMessage(msg, null, 0, 0, 1);
+        while (msg.message != User32.WM_QUIT) {
+            if (isMsg) {
+                if (msg.message == User32.WM_HOTKEY) {
+
                 }
             }
+
+            while (!hotkeyRegStack.isEmpty()) {
+                if (!registerHotkeyThread(hotkeyRegStack.pop())) {
+                    System.out.println("Error registering hotkey!");
+                }
+            }
+
+            isMsg = user32.PeekMessage(msg, null, 0, 0, 1);
         }
     }
 
@@ -60,7 +77,20 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         if (registeredKeys.containsKey(hotkey.getID()))
             return false;
 
-        boolean success = user32.RegisterHotKey(hwnd, hotkey.getID(), hotkey.getModifier(), hotkey.getKeyCode());
+        hotkeyRegStack.push(new Hotkey(hotkey.getKeyCode(), hotkey.getID(), hotkey.getModifier()));
+        return true;
+    }
+
+    /**
+     * The logic for registerHotkey that will run on the thread.
+     * @param hotkey The hotkey to be registered.
+     * @return If the hotkey registration was successful.
+     */
+    private boolean registerHotkeyThread(Hotkey hotkey) {
+        if (registeredKeys.containsKey(hotkey.getID()))
+            return false;
+
+        boolean success = user32.RegisterHotKey(null, hotkey.getID(), hotkey.getModifier(), hotkey.getKeyCode());
         if (success)
             registeredKeys.put(hotkey.getID(), hotkey);
 
@@ -86,6 +116,15 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     @Override
     public boolean wasPressed(int id) {
+        return false;
+    }
+
+    /**
+     * The logic for wasPressed that will run on the thread.
+     * @param id The hotkey id to be checked.
+     * @return If the hotkey was pressed.
+     */
+    public boolean wasPressedThread(int id) {
         return false;
     }
 
