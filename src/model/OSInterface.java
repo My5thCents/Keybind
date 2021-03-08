@@ -2,6 +2,7 @@ package model;
 
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinUser;
 
 import java.util.HashMap;
 
@@ -12,9 +13,13 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     private User32 user32 = User32.INSTANCE;
     private WinDef.HWND hwnd;
     private HashMap<Integer, Hotkey> registeredKeys;
+    private HashMap<Integer, Boolean> pressedKeys;
+    private WinUser.MSG msg;
 
     private OSInterface() {
         registeredKeys = new HashMap<>();
+        pressedKeys = new HashMap<>();
+        msg = new WinUser.MSG();
     }
 
     /**
@@ -28,11 +33,26 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     }
 
     /**
+     * Must be called in a loop to check the message queue of the window.
+     */
+    public void checkMessages() {
+        boolean hotkeyMsg = user32.PeekMessage(msg, hwnd, 0, 0, 1);
+        if (hotkeyMsg) {
+            if (msg.message == User32.WM_HOTKEY) {
+                if (registeredKeys.containsKey(msg.wParam.intValue())) {
+                    pressedKeys.put(msg.wParam.intValue(), true);
+                }
+            }
+        }
+    }
+
+    /**
      * Sets the HWND to use for interfacing with the OS.
      * @param hwnd The HWND of a window.
      */
     public void setHWND(WinDef.HWND hwnd) {
-        this.hwnd = hwnd;
+        if (this.hwnd == null)
+            this.hwnd = hwnd;
     }
 
     @Override
