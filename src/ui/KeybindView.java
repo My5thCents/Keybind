@@ -17,6 +17,9 @@ public class KeybindView extends Pane {
     TextField keyAction = new TextField();
     //Options for selecting keys
     OptionsList lists = new OptionsList();
+    //Mapping of key selections and key code integers
+    keyValueMap keyValueMap = new keyValueMap();
+
     public KeybindView() {
         this.setStyle("-fx-background-color: #99aab5;");
         keyToBind.setLayoutX(60);
@@ -49,12 +52,23 @@ public class KeybindView extends Pane {
 
     }
 
-    public String getKeyToBind() {
-        return keyToBind.getText();
-    }
+    /**
+     * Returns an Integer value for the Windows key code for the string representation of a key.
+     * Corresponds to the key which is being bound
+     * @return an Integer value for the Windows key code for the string representation of a key
+     */
+    public Integer getKeyToBind() {
 
-    public String getKeyAction() {
-        return keyAction.getText();
+        return keyValueMap.getKeyCode(keyToBind.getText());
+    }
+    /**
+     * Returns an Integer value for the Windows key code for the string representation of a key.
+     * Corresponds to the resulting action when the bound key is pressed
+     * @return an Integer value for the Windows key code for the string representation of a key
+     */
+    public Integer getKeyAction() {
+
+        return keyValueMap.getKeyCode(keyAction.getText());
     }
 
 }

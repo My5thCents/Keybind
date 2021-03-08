@@ -14,6 +14,7 @@ public class mainScreen extends Pane {
         Stage primaryStage = new Stage();
         Scene mainScreenScene = new Scene(this, 800, 800);
 
+
         public mainScreen() {
             this.setStyle("-fx-background-color: #99aab5;");
             primaryStage.setTitle("");
