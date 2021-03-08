@@ -17,18 +17,17 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     private HashMap<Integer, Hotkey> registeredKeys;
     private HashMap<Integer, Boolean> pressedKeys;
     private WinUser.MSG msg;
+    /** Signal for the OSInterface to stop it's thread runnable. **/
+    private boolean stop = false;
 
     /** Stack for hotkeys to be registered. */
     private Stack<Hotkey> hotkeyRegStack;
-    /** Stack for hotkey presses to be checked. */
-    private Stack<Integer> wasPressedStack;
 
     private OSInterface() {
         registeredKeys = new HashMap<>();
         pressedKeys = new HashMap<>();
         msg = new WinUser.MSG();
         hotkeyRegStack = new Stack<>();
-        wasPressedStack = new Stack<>();
     }
 
     /**
@@ -42,14 +41,25 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     }
 
     /**
+     * Stops the OSInterface runnable.
+     * Only should be called when the program is shutting down.
+     */
+    public void stop() {
+        this.stop = true;
+    }
+
+    /**
      * Main thread for checking messages and processing requests.
      */
     public void run() {
         boolean isMsg = user32.PeekMessage(msg, null, 0, 0, 1);
-        while (msg.message != User32.WM_QUIT) {
+        while (msg.message != User32.WM_QUIT && !stop) {
             if (isMsg) {
                 if (msg.message == User32.WM_HOTKEY) {
-
+                    int keyPressed = msg.wParam.intValue();
+                    if (registeredKeys.containsKey(keyPressed)) {
+                        pressedKeys.put(keyPressed, true);
+                    }
                 }
             }
 
@@ -97,10 +107,11 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         return success;
     }
 
+    // TODO Add thread version.
     @Override
     public boolean unregisterHotkey(int id) {
-        if (!registeredKeys.containsKey(id))
-            return true;
+        if (registeredKeys.containsKey(id) || registeredKeys.isEmpty())
+            return false;
 
         boolean success = user32.UnregisterHotKey(hwnd.getPointer(), id);
         if (success)
@@ -116,16 +127,14 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     @Override
     public boolean wasPressed(int id) {
-        return false;
-    }
+        if (!registeredKeys.containsKey(id) || pressedKeys.isEmpty())
+            return false;
 
-    /**
-     * The logic for wasPressed that will run on the thread.
-     * @param id The hotkey id to be checked.
-     * @return If the hotkey was pressed.
-     */
-    public boolean wasPressedThread(int id) {
-        return false;
+        boolean pressed = pressedKeys.get(id);
+        // Set the hotkey back to default not pressed.
+        pressedKeys.put(id, false);
+
+        return pressed;
     }
 
     @Override
