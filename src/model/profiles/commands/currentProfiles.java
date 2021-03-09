@@ -6,7 +6,6 @@ import model.profiles.database.profileDatabase;
 
 /**
  * Get all the current profiles in the form of a String
- * NOT DONE
  */
 public class currentProfiles extends CommandStatus{
     public String findAllProfiles(){
@@ -16,7 +15,7 @@ public class currentProfiles extends CommandStatus{
             if( p == profileDatabase.getActive()){
                 allProfiles = allProfiles + "ACTIVE: ";
             }
-            allProfiles = allProfiles + p + "\n";
+            allProfiles = allProfiles + p.name + "\n";
         }
         successful = true;
         return allProfiles;

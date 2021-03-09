@@ -5,7 +5,6 @@ import model.profiles.entities.profile;
 
 /**
  * Remove a hotkey from a profile
- * NOT DONE
  */
 public class removeHotkey extends CommandStatus{
     /**
@@ -18,7 +17,7 @@ public class removeHotkey extends CommandStatus{
             successful = false;
             errorMessage = "No profile with name: " + name;
         }
-        profile p =  profileDatabase.database().get(name);
+        profile p = profileDatabase.database().get(name);
         p.removeHotKey(id);
     }
 }
