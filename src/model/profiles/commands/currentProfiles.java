@@ -14,8 +14,11 @@ public class currentProfiles extends CommandStatus{
         for(profile p : profiles){
             if( p == profileDatabase.getActive()){
                 allProfiles = allProfiles + "ACTIVE: ";
+                allProfiles = allProfiles + p.name + "\n";
             }
-            allProfiles = allProfiles + p.name + "\n";
+            else if(!p.getName().equals("") && !p.getName().equals("\n")){
+                allProfiles = allProfiles + p.name + "\n";
+            }
         }
         successful = true;
         return allProfiles;

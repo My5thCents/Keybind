@@ -5,15 +5,12 @@ package model.profiles.commands;
  */
 public class CommandStatus {
     protected boolean successful = false;
-    protected String errorMessage;
+    protected String errorMessage = "No Errors :)";
 
     public boolean wasSuccessful(){
         return successful;
     }
     public String getErrorMessage(){
-        if(wasSuccessful()){
-            throw new RuntimeException("Something went wrong :(");
-        }
         return errorMessage;
     }
 }
