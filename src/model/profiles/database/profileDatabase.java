@@ -19,6 +19,9 @@ public class profileDatabase {
         //Create our initial database if it doesn't exist
         if (database == null) {
             database = new TreeMap<String, profile>();
+            //Default profile with default windows settings
+            profile p = new profile("Default");
+            database.put("Default",p);
         }
         return database;
     }

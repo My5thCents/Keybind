@@ -6,6 +6,9 @@ import model.profiles.entities.profile;
  * Used to check what active profile we are using if any
  */
 public class checkActive extends CommandStatus{
+    /**
+     * @return The profile that is active
+     */
     public profile CheckActive(){
         profile p = new profile("No Active Profile");
         if(profileDatabase.getActive() == null){
