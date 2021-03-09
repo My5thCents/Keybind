@@ -3,6 +3,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import model.OSInterface;
 
 public class Main extends Application {
 
@@ -16,6 +17,11 @@ public class Main extends Application {
 
 
     public static void main(String[] args) {
+        Thread thread = new Thread(OSInterface.getInstance());
+        thread.start();
+
         launch(args);
+
+        OSInterface.getInstance().stop();
     }
 }
