@@ -1,14 +1,14 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
 import model.OSInterface;
-import ui.mainScreen;
+import ui.MainScreen;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
         // Initialize at main UI screen
-        new mainScreen();
+        new MainScreen();
 
 
     }

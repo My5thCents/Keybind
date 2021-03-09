@@ -10,7 +10,7 @@ import javafx.stage.Stage;
  * mainScreen is the main UI page for the program. All user functions start here.
  */
 
-class MainScreen extends Pane {
+public class MainScreen extends Pane {
         Stage primaryStage = new Stage();
         Scene mainScreenScene = new Scene(this, 800, 800);
 
