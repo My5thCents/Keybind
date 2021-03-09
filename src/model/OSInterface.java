@@ -1,8 +1,8 @@
 package model;
 
-import com.sun.jna.platform.win32.User32;
-import com.sun.jna.platform.win32.WinDef;
-import com.sun.jna.platform.win32.WinUser;
+import com.sun.jna.Native;
+import com.sun.jna.Structure;
+import com.sun.jna.platform.win32.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -65,6 +65,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                     int keyPressed = msg.wParam.intValue();
                     if (registeredKeys.containsKey(keyPressed)) {
                         pressedKeys.put(keyPressed, true);
+                        sendKey(0x45, false);
                     }
                 }
             }
@@ -75,8 +76,16 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
             keySendQueue.drainTo(toSendKeys);
 
             while (!toSendKeys.isEmpty()) {
-                WinUser.INPUT[] inputs = keySendQueue.remove();
-                user32.SendInput(new WinDef.DWORD(inputs.length), inputs, inputs[0].size());
+                WinUser.INPUT[] inputs = toSendKeys.remove();
+
+                WinDef.DWORD length = new WinDef.DWORD(inputs.length);
+                int sizeBytes = inputs[0].size();
+
+                WinDef.DWORD sent = user32.SendInput(length, inputs, sizeBytes);
+
+                if (sent.intValue() == 0) {
+                    System.out.println("Error sending input.");
+                }
             }
 
             while (!toReg.isEmpty()) {
@@ -156,13 +165,19 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     @Override
     public void sendKey(int keyCode, boolean release) {
         if (keyCode > 0 && keyCode < 255) {
-            WinUser.INPUT inputs[] = new WinUser.INPUT[1];
+            WinUser.INPUT[] inputs = (WinUser.INPUT[]) new WinUser.INPUT().toArray(2);
 
-            inputs[0] = new WinUser.INPUT();
-
-            // Set input type to keyboard_input = 1
-            inputs[0].type = new WinUser.DWORD(1);
+            inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+            inputs[0].input.setType("ki");
             inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
+            inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
+            inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+
+            inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+            inputs[1].input.setType("ki");
+            inputs[1].input.ki.wVk = new WinDef.WORD(keyCode);
+            inputs[1].input.ki.dwFlags = new WinDef.DWORD(WinUser.KEYBDINPUT.KEYEVENTF_KEYUP);
+            inputs[1].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
 
             keySendQueue.add(inputs);
         }
