@@ -10,12 +10,12 @@ import javafx.stage.Stage;
  * mainScreen is the main UI page for the program. All user functions start here.
  */
 
-public class mainScreen extends Pane {
+class MainScreen extends Pane {
         Stage primaryStage = new Stage();
         Scene mainScreenScene = new Scene(this, 800, 800);
 
 
-        public mainScreen() {
+        public MainScreen() {
             this.setStyle("-fx-background-color: #99aab5;");
             primaryStage.setTitle("");
             primaryStage.setScene(mainScreenScene);
