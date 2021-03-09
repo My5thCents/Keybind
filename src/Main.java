@@ -1,18 +1,16 @@
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import model.OSInterface;
+import ui.mainScreen;
 
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("ui/main.fxml"));
-        primaryStage.setTitle("Main Window");
-        primaryStage.setScene(new Scene(root, 300, 275));
-        primaryStage.show();
+        // Initialize at main UI screen
+        new mainScreen();
+
+
     }
 
 
