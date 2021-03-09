@@ -14,7 +14,7 @@ public class Hotkey {
     /**
      * Modifier for the hotkey.
      */
-    protected final Modifier modifier;
+    protected final int modifier;
 
     /**
      * Constructs an immutable hotkey.
@@ -22,7 +22,7 @@ public class Hotkey {
      * @param id The unique ID of the hotkey.
      * @param modifier The modifier of the hotkey.
      */
-    public Hotkey(int keyCode, int id, Modifier modifier) {
+    public Hotkey(int keyCode, int id, int modifier) {
         this.keyCode = keyCode;
         this.id = id;
         this.modifier = modifier;
@@ -45,7 +45,7 @@ public class Hotkey {
     /**
      * Get's the hotkey's modifier.
      */
-    public Modifier getModifier() {
+    public int getModifier() {
         return modifier;
     }
 }
