@@ -2,6 +2,9 @@ package model;
 
 import java.awt.*;
 
+/**
+ * Testing program while the program is not yet completed so that we may test the system simulating keypresses.
+ */
 public class Action extends Hotkey implements InputEmulator{
     /**
      * Robot which simulates user key presses
