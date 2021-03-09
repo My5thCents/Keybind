@@ -25,6 +25,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     /** Stack for hotkeys to be registered. */
     private BlockingQueue<Hotkey> hotkeyRegQueue;
+    private BlockingQueue<Integer> hotkeyUnRegQueue;
     /** Stack for keys to be emulated. */
     private BlockingQueue<WinUser.INPUT[]> keySendQueue;
 
@@ -33,6 +34,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         pressedKeys = new HashMap<>();
         msg = new WinUser.MSG();
         hotkeyRegQueue = new LinkedBlockingQueue<>();
+        hotkeyUnRegQueue = new LinkedBlockingQueue<>();
         keySendQueue = new LinkedBlockingQueue<>();
     }
 
@@ -71,10 +73,13 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
             }
 
             Queue<Hotkey> toReg = new LinkedList<>();
+            Queue<Integer> toUnReg = new LinkedList<>();
             Queue<WinUser.INPUT[]> toSendKeys = new LinkedList<>();
             hotkeyRegQueue.drainTo(toReg);
+            hotkeyUnRegQueue.drainTo(toUnReg);
             keySendQueue.drainTo(toSendKeys);
 
+            // Send all keys in the queue.
             while (!toSendKeys.isEmpty()) {
                 WinUser.INPUT[] inputs = toSendKeys.remove();
 
@@ -84,18 +89,33 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 WinDef.DWORD sent = user32.SendInput(length, inputs, sizeBytes);
 
                 if (sent.intValue() == 0) {
-                    System.out.println("Error sending input.");
+                    System.out.println("Error sending input!");
                 }
             }
 
+            // Register all hotkeys in the queue.
             while (!toReg.isEmpty()) {
                 if (!registerHotkeyThread(toReg.remove())) {
                     System.out.println("Error registering hotkey!");
                 }
             }
 
+            // Unregister all hotkeys in the queue.
+            while (!toUnReg.isEmpty()) {
+                if (!unregisterHotkeyThread(toUnReg.remove())) {
+                    System.out.println("Error unregistering hotkey!");
+                }
+            }
+
             isMsg = user32.PeekMessage(msg, null, 0, 0, 1);
         }
+
+        // Unregister all hotkeys after program termination.
+        registeredKeys.forEach((k, v) -> {
+            if (!unregisterHotkeyThread(k)) {
+                System.out.println("Error unregistering hotkey!");
+            }
+        });
     }
 
     /**
@@ -132,17 +152,23 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         return success;
     }
 
-    // TODO Add thread version.
     @Override
     public boolean unregisterHotkey(int id) {
         if (registeredKeys.containsKey(id) || registeredKeys.isEmpty())
             return false;
 
-        boolean success = user32.UnregisterHotKey(hwnd.getPointer(), id);
-        if (success)
-            registeredKeys.remove(id);
+        hotkeyUnRegQueue.add(id);
 
-        return success;
+        return true;
+    }
+
+    /**
+     * The logic for unregisterHotkey that will run on the thread.
+     * @param id The id of the hotkey to be unregistered.
+     * @return If the hotkey unregistration was successful.
+     */
+    private boolean unregisterHotkeyThread(int id) {
+        return user32.UnregisterHotKey(null, id);
     }
 
     @Override
@@ -167,12 +193,14 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         if (keyCode > 0 && keyCode < 255) {
             WinUser.INPUT[] inputs = (WinUser.INPUT[]) new WinUser.INPUT().toArray(2);
 
+            // Key down input
             inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
             inputs[0].input.setType("ki");
             inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
             inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
             inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
 
+            // Key up input
             inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
             inputs[1].input.setType("ki");
             inputs[1].input.ki.wVk = new WinDef.WORD(keyCode);
