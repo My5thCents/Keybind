@@ -14,7 +14,7 @@ public class Action extends Hotkey implements InputEmulator{
      * @param id       The unique ID of the hotkey.
      * @param modifier The modifier of the hotkey.
      */
-    public Action(int keyCode, int id, Modifier modifier) throws AWTException {
+    public Action(int keyCode, int id, int modifier) throws AWTException {
         super(keyCode, id, modifier);
         this.robot = new Robot();
 
