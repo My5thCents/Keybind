@@ -6,6 +6,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import model.Hotkey;
+import model.Modifier;
 import model.OSInterface;
 
 /**
@@ -144,7 +145,7 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
-            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, KBV.getKeyAction());
+            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
             id ++;
             boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             primaryStage.setScene(mainScreenScene);
