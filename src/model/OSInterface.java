@@ -67,7 +67,6 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                     int keyPressed = msg.wParam.intValue();
                     if (registeredKeys.containsKey(keyPressed)) {
                         pressedKeys.put(keyPressed, true);
-                        sendKey(0x45, false);
                     }
                 }
             }
