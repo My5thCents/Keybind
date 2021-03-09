@@ -43,4 +43,19 @@ public class MediaKeys extends Hotkey implements InputEmulator{
         }
     }
 
+    public static void main(String[] args){
+
+        System.out.println("TestCases");
+
+        // with not valid keycode
+        MediaKeys test0 = new MediaKeys(0, 0, 0);
+        test0.sendKey(test0.getKeyCode(), false);
+
+        // with valid Keycode
+        MediaKeys test1 = new MediaKeys(178, 0, 0);
+        test1.sendKey(test1.getKeyCode(), false);
+
+
+    }
+
 }
