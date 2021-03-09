@@ -16,13 +16,15 @@ public class Main extends Application {
 
 
     public static void main(String[] args) {
+        Demo demo = new Demo();
         Thread thread = new Thread(OSInterface.getInstance());
-        Thread demoThread = new Thread(new Demo());
+        Thread demoThread = new Thread(demo);
         thread.start();
         demoThread.start();
 
         launch(args);
 
         OSInterface.getInstance().stop();
+        demo.stop();
     }
 }

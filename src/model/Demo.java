@@ -11,7 +11,7 @@ public class Demo implements Runnable {
      public void run() {
          while (!stop) {
              if (OSInterface.getInstance().wasPressed(id)) {
-
+                OSInterface.getInstance().sendKey(0x70, false);
              }
          }
      }
