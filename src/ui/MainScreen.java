@@ -5,6 +5,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import model.Hotkey;
+import model.OSInterface;
 
 /**
  * mainScreen is the main UI page for the program. All user functions start here.
@@ -13,6 +15,7 @@ import javafx.stage.Stage;
 public class MainScreen extends Pane {
         Stage primaryStage = new Stage();
         Scene mainScreenScene = new Scene(this, 800, 800);
+        int id = 0;
 
 
         public MainScreen() {
@@ -141,9 +144,10 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
+            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, KBV.getKeyAction());
+            id ++;
+            boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             primaryStage.setScene(mainScreenScene);
-            System.out.println(KBV.getKeyToBind());
-            System.out.println(KBV.getKeyAction());
         });
         primaryStage.setTitle("Set a Keybind");
         Scene testScene = new Scene(KBV, 800, 800);
