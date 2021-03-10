@@ -20,7 +20,7 @@ public class MediaKeys extends Hotkey implements InputEmulator{
      * @param id id of hotkey
      * @param modifier modifer for keycode
      */
-    public MediaKeys (int keyCode, int id, int modifier){
+    public MediaKeys (int keyCode, int id, Modifier modifier){
         super(keyCode, id , modifier);
     }
 
@@ -41,21 +41,11 @@ public class MediaKeys extends Hotkey implements InputEmulator{
         else if (keyCode == prev){
             System.out.println("sending prev keycode" + keyCode);
         }
+        else{
+            System.out.println("Keycode send isnt a media key");
+        }
     }
 
-    public static void main(String[] args){
 
-        System.out.println("TestCases");
-
-        // with not valid keycode
-        MediaKeys test0 = new MediaKeys(0, 0, 0);
-        test0.sendKey(test0.getKeyCode(), false);
-
-        // with valid Keycode
-        MediaKeys test1 = new MediaKeys(178, 0, 0);
-        test1.sendKey(test1.getKeyCode(), false);
-
-
-    }
 
 }
