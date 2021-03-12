@@ -23,10 +23,18 @@ public class Binding {
         this.hk2 = hotkey2;
     }
 
+    /**
+     * return the ID of the hotkey/action binding
+     * @return ID
+     */
     public int getID() {
         return this.hk1.getID();
     }
 
+    /**
+     * return the action code to be preformed when the action is pressed
+     * @return action keyCode
+     */
     public int getActionCode() {
         return this.hk2.getKeyCode();
     }
