@@ -5,9 +5,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import model.Binding;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * mainScreen is the main UI page for the program. All user functions start here.
@@ -17,6 +21,7 @@ public class MainScreen extends Pane {
         Stage primaryStage = new Stage();
         Scene mainScreenScene = new Scene(this, 800, 800);
         int id = 0;
+        public static ArrayList<Binding> list = new ArrayList<>();
 
 
         public MainScreen() {
@@ -146,6 +151,9 @@ public class MainScreen extends Pane {
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
             Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
+            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+            Binding binding = new Binding(newHotkey, action);
+            list.add(binding);
             id ++;
             boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             primaryStage.setScene(mainScreenScene);

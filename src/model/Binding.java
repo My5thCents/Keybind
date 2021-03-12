@@ -4,26 +4,30 @@ public class Binding {
     /**
      * Hotkey to be bound to an action
      */
-    Hotkey hotkey;
+    Hotkey hk1;
 
     /**
      * Action preformed when hotkey is pressed
      */
-    Action action;
+    Hotkey hk2;
 
-    /**
-     * The id of the hotkey and action pairing
-     */
-    int id;
 
     /**
      * Constructor to bind the hotkey and the action together
-     * @param hotkey hotkey which is submitted
-     * @param action the action to be preformed when the hotkey is pressed
+     *
+     * @param hotkey1 hotkey which is submitted
+     * @param hotkey2 the action to be preformed when the hotkey is pressed
      */
-    public Binding(Hotkey hotkey, Action action){
-        this.hotkey = hotkey;
-        this.action = action;
-        this.id = hotkey.getID();
+    public Binding(Hotkey hotkey1, Hotkey hotkey2) {
+        this.hk1 = hotkey1;
+        this.hk2 = hotkey2;
+    }
+
+    public int getID() {
+        return this.hk1.getID();
+    }
+
+    public int getActionCode() {
+        return this.hk2.getKeyCode();
     }
 }

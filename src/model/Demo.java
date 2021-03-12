@@ -1,8 +1,14 @@
 package model;
 
+import ui.MainScreen;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Demo implements Runnable {
-    int id = 0;
+    int id;
     boolean stop = false;
+    ArrayList<Binding> list = MainScreen.list;
 
     public Demo() {
 
@@ -10,11 +16,13 @@ public class Demo implements Runnable {
 
      public void run() {
          while (!stop) {
-             if (OSInterface.getInstance().wasPressed(id)) {
-                OSInterface.getInstance().sendKey(0x70, false);
+             for (Binding binding : list) {
+                 if (OSInterface.getInstance().wasPressed(binding.getID())) {
+                     OSInterface.getInstance().sendKey(binding.getActionCode(), true);
+                     }
+                 }
              }
          }
-     }
 
      public void stop() {
         stop = true;
