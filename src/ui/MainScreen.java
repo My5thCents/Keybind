@@ -5,13 +5,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import model.Binding;
+import Controller.Binding;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * mainScreen is the main UI page for the program. All user functions start here.

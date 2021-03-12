@@ -1,16 +1,15 @@
-package model;
+package Controller;
 
+import model.OSInterface;
 import ui.MainScreen;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class Demo implements Runnable {
-    int id;
+public class RunHotkeys implements Runnable {
     boolean stop = false;
     ArrayList<Binding> list = MainScreen.list;
 
-    public Demo() {
+    public RunHotkeys() {
 
     }
 

@@ -1,4 +1,6 @@
-package model;
+package Controller;
+
+import model.Hotkey;
 
 public class Binding {
     /**

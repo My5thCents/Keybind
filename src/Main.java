@@ -1,6 +1,6 @@
 import javafx.application.Application;
 import javafx.stage.Stage;
-import model.Demo;
+import Controller.RunHotkeys;
 import model.OSInterface;
 import ui.MainScreen;
 
@@ -16,15 +16,15 @@ public class Main extends Application {
 
 
     public static void main(String[] args) {
-        Demo demo = new Demo();
+        RunHotkeys runHotkeys = new RunHotkeys();
         Thread thread = new Thread(OSInterface.getInstance());
-        Thread demoThread = new Thread(demo);
+        Thread demoThread = new Thread(runHotkeys);
         thread.start();
         demoThread.start();
 
         launch(args);
 
         OSInterface.getInstance().stop();
-        demo.stop();
+        runHotkeys.stop();
     }
 }
