@@ -17,7 +17,7 @@ public class getHotkey extends CommandStatus{
         profile p = profileDatabase.database().get(name);
         if(!p.hasHotkey(id)){
             successful = false;
-            errorMessage = "HotKey does not exist in this profile";
+            errorMessage = "Hotkey does not exist in this profile";
         }
         else{
             successful = true;

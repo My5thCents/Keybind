@@ -1,5 +1,4 @@
 package model.profiles.entities;
-
 import model.profiles.commands.*;
 import model.Hotkey;
 
@@ -28,7 +27,7 @@ public class profile {
     /**
      * Get a hotkey using its ID
      * @param id the unique ID for the hotkey in our profile
-     * @return
+     * @return the hot key with the given id
      */
     public Hotkey getHotKey(int id){
         if(!HKeys.containsKey(id)){

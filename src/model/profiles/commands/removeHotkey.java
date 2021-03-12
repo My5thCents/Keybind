@@ -17,7 +17,17 @@ public class removeHotkey extends CommandStatus{
             successful = false;
             errorMessage = "No profile with name: " + name;
         }
-        profile p = profileDatabase.database().get(name);
-        p.removeHotKey(id);
+        else{
+            profile p = profileDatabase.database().get(name);
+            if(!p.hasHotkey(id)){
+                successful = false;
+                errorMessage = "This profile does not have a hotkey with id: " + id;
+            }
+            else{
+                successful = true;
+                errorMessage = "Removed successfully :)";
+                p.removeHotKey(id);
+            }
+        }
     }
 }

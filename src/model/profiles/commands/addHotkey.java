@@ -20,7 +20,7 @@ public class addHotkey extends CommandStatus {
         Hotkey add = new Hotkey(key,id,mod);
         if(!profileDatabase.database().containsKey(name)){
             successful = false;
-            errorMessage = "Profile with name does not exist";
+            errorMessage = "Profile with name " + name + " does not exist";
         }
         else{
             profile p = profileDatabase.database().get(name);
