@@ -128,10 +128,11 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     @Override
     public boolean registerHotkey(Hotkey hotkey) {
-        if (registeredKeys.containsKey(hotkey.getID()))
+        int key = hotkey.getKeyCode();
+        if (registeredKeys.containsKey(hotkey.getID()) || key < 1 || key > 254)
             return false;
 
-        hotkeyRegQueue.add(new Hotkey(hotkey.getKeyCode(), hotkey.getID(), hotkey.getModifier()));
+        hotkeyRegQueue.add(new Hotkey(key, hotkey.getID(), hotkey.getModifier()));
         return true;
     }
 
@@ -145,15 +146,17 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
             return false;
 
         boolean success = user32.RegisterHotKey(null, hotkey.getID(), hotkey.getModifier(), hotkey.getKeyCode());
-        if (success)
+        if (success) {
             registeredKeys.put(hotkey.getID(), hotkey);
+            pressedKeys.put(hotkey.getID(), false);
+        }
 
         return success;
     }
 
     @Override
     public boolean unregisterHotkey(int id) {
-        if (registeredKeys.containsKey(id) || registeredKeys.isEmpty())
+        if (!registeredKeys.containsKey(id))
             return false;
 
         hotkeyUnRegQueue.add(id);
@@ -177,7 +180,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     @Override
     public boolean wasPressed(int id) {
-        if (!registeredKeys.containsKey(id) || pressedKeys.isEmpty())
+        if (!pressedKeys.containsKey(id))
             return false;
 
         boolean pressed = pressedKeys.get(id);
