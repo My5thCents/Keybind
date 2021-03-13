@@ -17,7 +17,7 @@ public class addHotkey extends CommandStatus {
      * @param key The key of the hotkey we are making
      */
     public void AddHotkey(String name, int id, Modifier mod, int key){
-        Hotkey add = new Hotkey(key,id,mod);
+        Hotkey add = new Hotkey(key,id,mod.val());
         if(!profileDatabase.database().containsKey(name)){
             successful = false;
             errorMessage = "Profile with name " + name + " does not exist";
