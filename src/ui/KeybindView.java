@@ -18,7 +18,7 @@ public class KeybindView extends Pane {
     //Options for selecting keys
     OptionsList lists = new OptionsList();
     //Mapping of key selections and key code integers
-    keyValueMap keyValueMap = new keyValueMap();
+    KeyValueMap keyValueMap = new KeyValueMap();
 
     public KeybindView() {
         this.setStyle("-fx-background-color: #99aab5;");

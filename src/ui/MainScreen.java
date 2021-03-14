@@ -5,17 +5,25 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import Controller.Binding;
+import model.Hotkey;
+import model.Modifier;
+import model.OSInterface;
+
+import java.util.ArrayList;
 
 /**
  * mainScreen is the main UI page for the program. All user functions start here.
  */
 
-public class mainScreen extends Pane {
+public class MainScreen extends Pane {
         Stage primaryStage = new Stage();
         Scene mainScreenScene = new Scene(this, 800, 800);
+        int id = 0;
+        public static ArrayList<Binding> list = new ArrayList<>();
 
 
-        public mainScreen() {
+        public MainScreen() {
             this.setStyle("-fx-background-color: #99aab5;");
             primaryStage.setTitle("");
             primaryStage.setScene(mainScreenScene);
@@ -141,9 +149,13 @@ public class mainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
+            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
+            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+            Binding binding = new Binding(newHotkey, action);
+            list.add(binding);
+            id ++;
+            boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             primaryStage.setScene(mainScreenScene);
-            System.out.println(KBV.getKeyToBind());
-            System.out.println(KBV.getKeyAction());
         });
         primaryStage.setTitle("Set a Keybind");
         Scene testScene = new Scene(KBV, 800, 800);

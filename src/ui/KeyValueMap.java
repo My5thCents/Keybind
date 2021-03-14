@@ -5,10 +5,10 @@ import java.util.Hashtable;
 /**
  * keyValueMap initializes a Hashtable which maps the string value in the UI to a Windows Integer key code.
  */
-public class keyValueMap {
+class KeyValueMap {
     Hashtable<String, Integer> matchKey;
 
-    public keyValueMap () {
+    public KeyValueMap() {
         matchKey = new Hashtable<String, Integer>();
         //Add keys, codes
         matchKey.put("Q ", 81);
