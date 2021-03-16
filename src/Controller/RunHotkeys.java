@@ -14,13 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-public class RunHotkeys implements Runnable, NativeKeyListener {
+public class RunHotkeys implements Runnable {
     boolean stop = false;
 
     public RunHotkeys() throws NativeHookException {
         GlobalScreen.registerNativeHook();
 
-        GlobalScreen.addNativeKeyListener(this);
+        GlobalScreen.addNativeKeyListener(new KeyListener());
         LogManager.getLogManager().reset();
 
 // Get the logger for "org.jnativehook" and set the level to off.
@@ -37,23 +37,5 @@ public class RunHotkeys implements Runnable, NativeKeyListener {
         stop = true;
      }
 
-    @Override
-    public void nativeKeyPressed(NativeKeyEvent nativeKeyEvent) {
-        try{
-            OSInterface.getInstance().sendKey(dict.get(map.get(nativeKeyEvent.getKeyCode())), true);
-        } catch(Exception e) {
-            System.out.println(map.get(nativeKeyEvent.getKeyCode()));
-        }
 
-    }
-
-    @Override
-    public void nativeKeyReleased(NativeKeyEvent nativeKeyEvent) {
-
-    }
-
-    @Override
-    public void nativeKeyTyped(NativeKeyEvent nativeKeyEvent) {
-
-    }
 }
