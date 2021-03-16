@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class KeyConversion {
+    /**
+     * key map to convert from the keylistener keycodes to the windows keycodes
+     */
     public static final HashMap<Integer, Integer> map = new HashMap<Integer, Integer>(){
         {
             put(0x0000, 0x07); // UNDEFINED

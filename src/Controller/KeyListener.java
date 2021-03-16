@@ -8,14 +8,17 @@ import static Controller.KeyConversion.map;
 import static ui.MainScreen.dict;
 
 public class KeyListener implements NativeKeyListener {
+    /**
+     * empty constructor
+     */
     public KeyListener(){}
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent nativeKeyEvent) {
+        //if key pressed is in dictionary
         try{
             OSInterface.getInstance().sendKey(dict.get(map.get(nativeKeyEvent.getKeyCode())), true);
-        } catch(Exception e) {
-            System.out.println(map.get(nativeKeyEvent.getKeyCode()));
+        } catch(Exception ignored) {
         }
 
     }
