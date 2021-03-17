@@ -1,11 +1,11 @@
 package ui;
 
+import Controller.Action;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import Controller.Binding;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
@@ -22,7 +22,7 @@ public class MainScreen extends Pane {
         Stage primaryStage = new Stage();
         Scene mainScreenScene = new Scene(this, 800, 800);
         int id = 0;
-        public static Hashtable<Integer, Integer> dict = new Hashtable<>();
+        public static Hashtable<Integer, Action> dict = new Hashtable<>();
 
 
         public MainScreen() {
@@ -153,7 +153,10 @@ public class MainScreen extends Pane {
         save.setOnAction(e -> {
             Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
             Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
-            dict.put(newHotkey.getKeyCode(), action.getKeyCode());
+            ArrayList<Integer> actionList = new ArrayList<>();
+            actionList.add(action.getKeyCode());
+            Action newAction = new Action(actionList);
+            dict.put(newHotkey.getKeyCode(), newAction);
             id ++;
             boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             primaryStage.setScene(mainScreenScene);

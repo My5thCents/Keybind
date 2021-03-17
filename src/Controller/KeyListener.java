@@ -16,10 +16,8 @@ public class KeyListener implements NativeKeyListener {
     @Override
     public void nativeKeyPressed(NativeKeyEvent nativeKeyEvent) {
         //if key pressed is in dictionary
-        try{
-            OSInterface.getInstance().sendKey(dict.get(map.get(nativeKeyEvent.getKeyCode())), true);
-        } catch(Exception ignored) {
-        }
+        if (dict.containsKey(map.get(nativeKeyEvent.getKeyCode())))
+            dict.get(map.get(nativeKeyEvent.getKeyCode())).preformAction();
 
     }
 
