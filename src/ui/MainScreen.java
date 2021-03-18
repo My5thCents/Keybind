@@ -5,12 +5,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
 import org.jnativehook.NativeHookException;
 
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -19,117 +21,116 @@ import java.util.Hashtable;
  */
 
 public class MainScreen extends Pane {
-        Stage primaryStage = new Stage();
-        Scene mainScreenScene = new Scene(this, 800, 800);
-        int id = 0;
-        public static Hashtable<Integer, Action> dict = new Hashtable<>();
+    Stage primaryStage = new Stage();
+    Scene mainScreenScene = new Scene(this, 800, 800);
+    int id = 0;
+    public static Hashtable<Integer, Action> dict = new Hashtable<>();
 
 
-        public MainScreen() {
-            this.setStyle("-fx-background-color: #99aab5;");
-            primaryStage.setTitle("");
-            primaryStage.setScene(mainScreenScene);
-            primaryStage.show();
+    public MainScreen() {
+        this.setStyle("-fx-background-color: #99aab5;");
+        primaryStage.setTitle("");
+        primaryStage.setScene(mainScreenScene);
+        primaryStage.show();
 
 
 
             /*
             Button to send user to screen to set a new keybind.
              */
-            Button bKeybind = new Button("Set a Keybind");
-            bKeybind.setOnAction(e -> goToKeybind());
-            bKeybind.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
-            bKeybind.setWrapText(true);
-            bKeybind.setLayoutX(89);
-            bKeybind.setLayoutY(200);
+        Button bKeybind = new Button("Set a Keybind");
+        bKeybind.setOnAction(e -> goToKeybind());
+        bKeybind.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
+        bKeybind.setWrapText(true);
+        bKeybind.setLayoutX(89);
+        bKeybind.setLayoutY(200);
 
             /*
             Button to send user to screen to set a new macro
              */
-            Button bMacro = new Button("Bind a Key to Macro");
-            bMacro.setOnAction(e -> System.out.println("Set Macro"));
-            bMacro.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
-            bMacro.setWrapText(true);
-            bMacro.setLayoutX(438);
-            bMacro.setLayoutY(200);
+        Button bMacro = new Button("Bind a Key to Macro");
+        bMacro.setOnAction(e -> goToMacro());
+        bMacro.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
+        bMacro.setWrapText(true);
+        bMacro.setLayoutX(438);
+        bMacro.setLayoutY(200);
 
             /*
             Button to send user to screen to set a new keybind.
              */
-            Button bProgram = new Button("Bind a Key to Program");
-            bProgram.setOnAction(e -> System.out.println("Bind a Key to Program"));
-            bProgram.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
-            bProgram.setWrapText(true);
-            bProgram.setLayoutX(89);
-            bProgram.setLayoutY(450);
+        Button bProgram = new Button("Bind a Key to Program");
+        bProgram.setOnAction(e -> System.out.println("Bind a Key to Program"));
+        bProgram.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
+        bProgram.setWrapText(true);
+        bProgram.setLayoutX(89);
+        bProgram.setLayoutY(450);
 
 
             /*
             Button to send user to screen to change mouse sensitivity
              */
-            Button bMouseSens = new Button("Change Mouse Sensitivity");
-            bMouseSens.setOnAction(e -> System.out.println("Change Mouse Sensitivity"));
-            bMouseSens.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
-            bMouseSens.setWrapText(true);
-            bMouseSens.setLayoutX(438);
-            bMouseSens.setLayoutY(450);
+        Button bMouseSens = new Button("Change Mouse Sensitivity");
+        bMouseSens.setOnAction(e -> System.out.println("Change Mouse Sensitivity"));
+        bMouseSens.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
+        bMouseSens.setWrapText(true);
+        bMouseSens.setLayoutX(438);
+        bMouseSens.setLayoutY(450);
 
 
             /*
             Button to toggle keybinds on/off
              */
-            Button bToggle = new Button("Toggle Keybinds On/Off");
-            bToggle.setOnAction(e -> System.out.println("Toggle On/Off"));
-            bToggle.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
-            bToggle.setWrapText(true);
-            bToggle.setLayoutX(520);
-            bToggle.setLayoutY(670);
+        Button bToggle = new Button("Toggle Keybinds On/Off");
+        bToggle.setOnAction(e -> System.out.println("Toggle On/Off"));
+        bToggle.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
+        bToggle.setWrapText(true);
+        bToggle.setLayoutX(520);
+        bToggle.setLayoutY(670);
 
             /*
             Drop down box to select profile
              */
-            ComboBox<String> profileSelector = new ComboBox<String>();
-            profileSelector.getItems().add("Profile 1");
-            profileSelector.getItems().add("Profile 2");
-            profileSelector.getItems().add("Profile 3");
-            profileSelector.setValue("Profile 1");
-            profileSelector.setStyle("-fx-background-color: lightgrey; -fx-text-fill: white; -fx-font-size: 20; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
-            profileSelector.setLayoutX(89);
-            profileSelector.setLayoutY(45);
-            profileSelector.setOnAction(e -> System.out.println(profileSelector.getValue()));
+        ComboBox<String> profileSelector = new ComboBox<String>();
+        profileSelector.getItems().add("Profile 1");
+        profileSelector.getItems().add("Profile 2");
+        profileSelector.getItems().add("Profile 3");
+        profileSelector.setValue("Profile 1");
+        profileSelector.setStyle("-fx-background-color: lightgrey; -fx-text-fill: white; -fx-font-size: 20; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
+        profileSelector.setLayoutX(89);
+        profileSelector.setLayoutY(45);
+        profileSelector.setOnAction(e -> System.out.println(profileSelector.getValue()));
 
             /*
             Button to add new profile
              */
-            Button bAddProfile = new Button("Add New Profile");
-            bAddProfile.setOnAction(e -> System.out.println("Add New Profile"));
-            bAddProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
-            bAddProfile.setWrapText(true);
-            bAddProfile.setLayoutX(315);
-            bAddProfile.setLayoutY(45);
+        Button bAddProfile = new Button("Add New Profile");
+        bAddProfile.setOnAction(e -> System.out.println("Add New Profile"));
+        bAddProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
+        bAddProfile.setWrapText(true);
+        bAddProfile.setLayoutX(315);
+        bAddProfile.setLayoutY(45);
 
             /*
             Button to delete the current profile
              */
-            Button bDelProfile = new Button("Delete Current Profile");
-            bDelProfile.setOnAction(e -> System.out.println("Delete Current Profile"));
-            bDelProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
-                    "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
-            bDelProfile.setWrapText(true);
-            bDelProfile.setLayoutX(541);
-            bDelProfile.setLayoutY(45);
+        Button bDelProfile = new Button("Delete Current Profile");
+        bDelProfile.setOnAction(e -> System.out.println("Delete Current Profile"));
+        bDelProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
+        bDelProfile.setWrapText(true);
+        bDelProfile.setLayoutX(541);
+        bDelProfile.setLayoutY(45);
 
 
-
-            this.getChildren().addAll(bKeybind, bMacro, bProgram, bMouseSens, bToggle, profileSelector, bAddProfile, bDelProfile);
-        }
+        this.getChildren().addAll(bKeybind, bMacro, bProgram, bMouseSens, bToggle, profileSelector, bAddProfile, bDelProfile);
+    }
 
     /**
      * Function called when user wishes to make a new keybind. Opens the KeybindView class in the stage.
@@ -157,7 +158,7 @@ public class MainScreen extends Pane {
             actionList.add(action.getKeyCode());
             Action newAction = new Action(actionList);
             dict.put(newHotkey.getKeyCode(), newAction);
-            id ++;
+            id++;
             boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             primaryStage.setScene(mainScreenScene);
         });
@@ -169,4 +170,117 @@ public class MainScreen extends Pane {
 
     }
 
+    /**
+     * Function called when user wishes to make a new Macro. Opens the MacroView class in the stage.
+     */
+    private void goToMacro() {
+        KeybindView KBV = new KeybindView();
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(510);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+
+        ArrayList<Integer> added = new ArrayList<>();
+        Button add = new Button("Add Key");
+        add.setLayoutX(380);
+        add.setLayoutY(700);
+        add.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        add.setOnAction(e -> {
+            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
+            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+            ArrayList<Integer> actionList = new ArrayList<>();
+            actionList.add(action.getKeyCode());
+            goToAddToMacro(newHotkey, actionList);
+        });
+
+
+        //Button to save fields and enter keybind to profile
+        Button save = new Button("Save");
+        save.setLayoutX(640);
+        save.setLayoutY(700);
+        save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        save.setOnAction(e -> {
+            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
+            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+            ArrayList<Integer> actionList = new ArrayList<>();
+            actionList.add(action.getKeyCode());
+            Action newAction = new Action(actionList);
+            dict.put(newHotkey.getKeyCode(), newAction);
+            id++;
+            boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
+            primaryStage.setScene(mainScreenScene);
+        });
+        primaryStage.setTitle("Set a Keybind");
+        Scene testScene = new Scene(KBV, 800, 800);
+        primaryStage.setScene(testScene);
+        KBV.getChildren().addAll(back, save, add);
+
+    }
+
+    public void goToAddToMacro(Hotkey hotkey, ArrayList<Integer> added){
+        MacroView KBV = new MacroView();
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(510);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+        Button add = new Button("Add Key");
+
+        //Button to add a new key to the macro
+        add.setLayoutX(380);
+        add.setLayoutY(700);
+        add.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        add.setOnAction(e -> {
+            //add the action to the list
+            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+            added.add(action.getKeyCode());
+            goToAddToMacro(hotkey, added);
+        });
+
+        Text hotkeyName = new Text();
+        hotkeyName.setLayoutX(100);
+        hotkeyName.setLayoutY(100);
+        hotkeyName.setText("Key: " + KeyEvent.getKeyText(hotkey.getKeyCode()));
+        hotkeyName.setStyle("-fx-text-fill: #2c2f33; -fx-font-size: 30;");
+        StringBuilder string = new StringBuilder("Keys added already: \n");
+
+        Text list = new Text();
+        list.setLayoutX(500);
+        list.setLayoutY(100);
+        for(Integer i : added){
+            string.append(KeyEvent.getKeyText(i));
+            string.append("\n");
+        }
+        list.setText(String.valueOf(string));
+        list.setStyle("-fx-text-fill: #2c2f33; -fx-font-size: 30;");
+
+        Button save = new Button("Save");
+        save.setLayoutX(640);
+        save.setLayoutY(700);
+        save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        save.setOnAction(e -> {
+            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+            added.add(action.getKeyCode());
+            Action newAction = new Action(added);
+            dict.put(hotkey.getKeyCode(), newAction);
+            id++;
+            boolean register = OSInterface.getInstance().registerHotkey(hotkey);
+            primaryStage.setScene(mainScreenScene);
+        });
+
+        primaryStage.setTitle("Set a Macro");
+        Scene testScene = new Scene(KBV, 800, 800);
+        primaryStage.setScene(testScene);
+        KBV.getChildren().addAll(back, add, save, hotkeyName, list);
+
+    }
 }
