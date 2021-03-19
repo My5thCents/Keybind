@@ -107,6 +107,12 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
             }
 
             isMsg = user32.PeekMessage(msg, null, 0, 0, 1);
+
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+                System.out.println("Problem sleeping.");
+            }
         }
 
         // Unregister all hotkeys after program termination.
@@ -194,20 +200,74 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     public void sendKey(int keyCode, boolean release) {
         if (keyCode > 0 && keyCode < 255) {
             WinUser.INPUT[] inputs = (WinUser.INPUT[]) new WinUser.INPUT().toArray(2);
+            final int LEFTDOWN = 0x0002;
+            final int LEFTUP = 0x0004;
+            final int RIGHTDOWN = 0x0008;
+            final int RIGHTUP = 0x0010;
+            final int MIDDLEDOWN = 0x0020;
+            final int MIDDLEUP = 0x0040;
+            final int XDOWN = 0x0080;
+            final int XUP = 0x0100;
 
-            // Key down input
-            inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
-            inputs[0].input.setType("ki");
-            inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
-            inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
-            inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+            // Mouse input
+            if (keyCode < 7 && keyCode != 3) {
+                int mouseDown = 0;
+                int mouseUp = 0;
+                int xButton = 0;
 
-            // Key up input
-            inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
-            inputs[1].input.setType("ki");
-            inputs[1].input.ki.wVk = new WinDef.WORD(keyCode);
-            inputs[1].input.ki.dwFlags = new WinDef.DWORD(WinUser.KEYBDINPUT.KEYEVENTF_KEYUP);
-            inputs[1].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+                switch (keyCode) {
+                    case 1:
+                        mouseDown = LEFTDOWN;
+                        mouseUp = LEFTUP;
+                        break;
+                    case 2:
+                        mouseDown = RIGHTDOWN;
+                        mouseUp = RIGHTUP;
+                        break;
+                    case 4:
+                        mouseDown = MIDDLEDOWN;
+                        mouseUp = MIDDLEUP;
+                        break;
+                    case 5:
+                        mouseDown = XDOWN;
+                        mouseUp = XUP;
+                        xButton = 0x0001;
+                        break;
+                    case 6:
+                        mouseDown = XDOWN;
+                        mouseUp = XUP;
+                        xButton = 0x0002;
+                    default:
+                        System.out.println("Invalid sendKey switch state!");
+                        break;
+                }
+
+                // Mouse button input
+                inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_MOUSE);
+                inputs[0].input.setType("mi");
+                if (xButton != 0) {
+                    inputs[0].input.mi.mouseData = new WinDef.DWORD(xButton);
+                }
+                inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseDown | mouseUp);
+                inputs[0].input.mi.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+
+            }
+            // Keyboard input
+            else {
+                // Key down input
+                inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+                inputs[0].input.setType("ki");
+                inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
+                inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
+                inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+
+                // Key up input
+                inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+                inputs[1].input.setType("ki");
+                inputs[1].input.ki.wVk = new WinDef.WORD(keyCode);
+                inputs[1].input.ki.dwFlags = new WinDef.DWORD(WinUser.KEYBDINPUT.KEYEVENTF_KEYUP);
+                inputs[1].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+            }
 
             keySendQueue.add(inputs);
         }
