@@ -16,6 +16,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     private static OSInterface instance = null;
 
     private User32 user32 = User32.INSTANCE;
+    Runtime runtime;
     private WinDef.HWND hwnd;
     private HashMap<Integer, Hotkey> registeredKeys;
     private HashMap<Integer, Integer> pressedKeys;
@@ -33,6 +34,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         registeredKeys = new HashMap<>();
         pressedKeys = new HashMap<>();
         msg = new WinUser.MSG();
+        runtime = Runtime.getRuntime();
         hotkeyRegQueue = new LinkedBlockingQueue<>();
         hotkeyUnRegQueue = new LinkedBlockingQueue<>();
         keySendQueue = new LinkedBlockingQueue<>();
@@ -182,6 +184,10 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     @Override
     public boolean setMouseSpeed(int speed) {
+        if (speed < 1 || speed > 20)
+            return false;
+
+
         return false;
     }
 
@@ -197,6 +203,16 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
             pressedKeys.put(id, keysLeft - 1);
 
         return pressed;
+    }
+
+    public boolean launchApplication(String path) {
+        try {
+            runtime.exec(path);
+            return true;
+        } catch (Exception e) {
+            System.out.println("Error launching applications: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
