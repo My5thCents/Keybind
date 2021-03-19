@@ -9,6 +9,7 @@ import Controller.Binding;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
+import model.profiles.commands.*;
 
 import java.util.ArrayList;
 
@@ -106,7 +107,7 @@ public class MainScreen extends Pane {
             Button to add new profile
              */
             Button bAddProfile = new Button("Add New Profile");
-            bAddProfile.setOnAction(e -> System.out.println("Add New Profile"));
+            bAddProfile.setOnAction(e -> goToAddProfile());
             bAddProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                     "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
             bAddProfile.setWrapText(true);
@@ -128,6 +129,7 @@ public class MainScreen extends Pane {
 
             this.getChildren().addAll(bKeybind, bMacro, bProgram, bMouseSens, bToggle, profileSelector, bAddProfile, bDelProfile);
         }
+
 
     /**
      * Function called when user wishes to make a new keybind. Opens the KeybindView class in the stage.
@@ -158,11 +160,40 @@ public class MainScreen extends Pane {
             primaryStage.setScene(mainScreenScene);
         });
         primaryStage.setTitle("Set a Keybind");
-        Scene testScene = new Scene(KBV, 800, 800);
-        primaryStage.setScene(testScene);
+        Scene KBVScene = new Scene(KBV, 800, 800);
+        primaryStage.setScene(KBVScene);
         KBV.getChildren().addAll(back, save);
-
-
     }
+
+    /**
+     * Function called when user wishes to add a new profile. Reads in a profile name and creates a new profile. User can also
+     * use back button to return without making changes.
+     */
+    private void goToAddProfile() {
+        AddProfileScreen profileScreen = new AddProfileScreen();
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(510);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+
+        //Button to save name field and create profile
+        Button save = new Button("Save");
+        save.setLayoutX(640);
+        save.setLayoutY(700);
+        save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        save.setOnAction(e -> {
+            System.out.println(profileScreen.getProfileName());
+            primaryStage.setScene(mainScreenScene);
+        });
+        primaryStage.setTitle("Add New Profile");
+        Scene profScene = new Scene(profileScreen, 800, 800);
+        primaryStage.setScene(profScene);
+        profileScreen.getChildren().addAll(back, save);
+    }
+
 
 }
