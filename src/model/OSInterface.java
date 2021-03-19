@@ -18,7 +18,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     private User32 user32 = User32.INSTANCE;
     private WinDef.HWND hwnd;
     private HashMap<Integer, Hotkey> registeredKeys;
-    private HashMap<Integer, Boolean> pressedKeys;
+    private HashMap<Integer, Integer> pressedKeys;
     private WinUser.MSG msg;
     /** Signal for the OSInterface to stop it's thread runnable. **/
     private boolean stop = false;
@@ -66,7 +66,8 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 if (msg.message == User32.WM_HOTKEY) {
                     int keyPressed = msg.wParam.intValue();
                     if (registeredKeys.containsKey(keyPressed)) {
-                        pressedKeys.put(keyPressed, true);
+                        int keys = pressedKeys.get(keyPressed);
+                        pressedKeys.put(keyPressed, keys + 1);
                     }
                 }
             }
@@ -154,7 +155,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         boolean success = user32.RegisterHotKey(null, hotkey.getID(), hotkey.getModifier(), hotkey.getKeyCode());
         if (success) {
             registeredKeys.put(hotkey.getID(), hotkey);
-            pressedKeys.put(hotkey.getID(), false);
+            pressedKeys.put(hotkey.getID(), 0);
         }
 
         return success;
@@ -189,9 +190,11 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         if (!pressedKeys.containsKey(id))
             return false;
 
-        boolean pressed = pressedKeys.get(id);
-        // Set the hotkey back to default not pressed.
-        pressedKeys.put(id, false);
+        int keysLeft = pressedKeys.get(id);
+        boolean pressed = keysLeft > 0;
+        // Decrement the pressedKeys value.
+        if (keysLeft > 0)
+            pressedKeys.put(id, keysLeft - 1);
 
         return pressed;
     }
