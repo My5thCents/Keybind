@@ -245,21 +245,29 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 // Mouse button input
                 inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_MOUSE);
                 inputs[0].input.setType("mi");
+
                 if (xButton != 0) {
                     inputs[0].input.mi.mouseData = new WinDef.DWORD(xButton);
                 }
-                inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseDown | mouseUp);
+
+                if (release)
+                    inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseUp);
+                else
+                    inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseDown | mouseUp);
+
                 inputs[0].input.mi.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
 
             }
             // Keyboard input
             else {
-                // Key down input
-                inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
-                inputs[0].input.setType("ki");
-                inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
-                inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
-                inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+                if (!release) {
+                    // Key down input
+                    inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+                    inputs[0].input.setType("ki");
+                    inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
+                    inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
+                    inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+                }
 
                 // Key up input
                 inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
