@@ -17,11 +17,17 @@ public class RunHotkeys implements Runnable {
          while (!stop) {
              for (Binding binding : list) {
                  if (OSInterface.getInstance().wasPressed(binding.getID())) {
-                     OSInterface.getInstance().sendKey(binding.getActionCode(), true);
+                     OSInterface.getInstance().sendKey(binding.getActionCode(), false);
                      }
                  }
+
+             try {
+                 Thread.sleep(10);
+             } catch (Exception e) {
+                 System.out.println("Problem sleeping.");
              }
          }
+    }
 
      public void stop() {
         stop = true;
