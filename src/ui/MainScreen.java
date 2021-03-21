@@ -1,7 +1,9 @@
 package ui;
 
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
@@ -118,7 +120,15 @@ public class MainScreen extends Pane {
             Button to delete the current profile
              */
             Button bDelProfile = new Button("Delete Current Profile");
-            bDelProfile.setOnAction(e -> System.out.println("Delete Current Profile"));
+            bDelProfile.setOnAction(e -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete current profile?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+                alert.showAndWait();
+                if (alert.getResult() == ButtonType.YES) {
+                    deleteProfile delP = new deleteProfile();
+                    checkActive active = new checkActive();
+                    delP.DeleteProfile(active.CheckActive().getName());
+                }
+            });
             bDelProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                     "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
             bDelProfile.setWrapText(true);
@@ -154,6 +164,9 @@ public class MainScreen extends Pane {
             Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
             Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
             Binding binding = new Binding(newHotkey, action);
+            checkActive active = new checkActive();
+            addHotkey addH = new addHotkey();
+            addH.AddHotkey(active.CheckActive().getName(), id, Modifier.NONE, KBV.getKeyAction());
             list.add(binding);
             id ++;
             boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
@@ -186,7 +199,7 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
-            System.out.println(profileScreen.getProfileName());
+            new addProfile(profileScreen.getProfileName());
             primaryStage.setScene(mainScreenScene);
         });
         primaryStage.setTitle("Add New Profile");
