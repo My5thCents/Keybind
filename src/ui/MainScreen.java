@@ -1,5 +1,6 @@
 package ui;
 
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -72,7 +73,7 @@ public class MainScreen extends Pane {
             Button to send user to screen to change mouse sensitivity
              */
             Button bMouseSens = new Button("Change Mouse Sensitivity");
-            bMouseSens.setOnAction(e -> System.out.println("Change Mouse Sensitivity"));
+            bMouseSens.setOnAction(e -> goToMouseSensitivity());
             bMouseSens.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
                     "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
             bMouseSens.setWrapText(true);
@@ -207,6 +208,37 @@ public class MainScreen extends Pane {
         primaryStage.setScene(profScene);
         profileScreen.getChildren().addAll(back, save);
     }
+
+    /**
+     * Function called when user wishes to change mouse sensitivity. Reads in a slider value, save button saves changes,
+     * back button does nothing and goes back to main screen.
+     */
+    private void goToMouseSensitivity() {
+        MouseSensitivityScreen mouseSensScreen = new MouseSensitivityScreen();
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(510);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+
+        //Button to save sensitivity and return to main screen
+        Button save = new Button("Save");
+        save.setLayoutX(640);
+        save.setLayoutY(700);
+        save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        save.setOnAction(e -> {
+            System.out.println(mouseSensScreen.getSensitivity());
+            primaryStage.setScene(mainScreenScene);
+        });
+        primaryStage.setTitle("Add New Profile");
+        Scene sensScene = new Scene(mouseSensScreen, 800, 800);
+        primaryStage.setScene(sensScene);
+        mouseSensScreen.getChildren().addAll(back, save);
+    }
+
 
 
 }
