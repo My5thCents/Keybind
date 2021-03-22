@@ -2,6 +2,7 @@ package ui;
 
 import Controller.Action;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
@@ -157,6 +158,12 @@ public class MainScreen extends Pane {
             ArrayList<Integer> actionList = new ArrayList<>();
             actionList.add(action.getKeyCode());
             Action newAction = new Action(actionList);
+            if (dict.containsKey(newHotkey.getKeyCode())){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
+                alert.show();
+                primaryStage.setScene(mainScreenScene);
+                return;
+            }
             dict.put(newHotkey.getKeyCode(), newAction);
             id++;
             boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
@@ -192,6 +199,12 @@ public class MainScreen extends Pane {
         add.setOnAction(e -> {
             Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
             Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+            if (dict.containsKey(newHotkey.getKeyCode())){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
+                alert.show();
+                primaryStage.setScene(mainScreenScene);
+                return;
+            }
             ArrayList<Integer> actionList = new ArrayList<>();
             actionList.add(action.getKeyCode());
             goToAddToMacro(newHotkey, actionList);
