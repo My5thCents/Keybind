@@ -147,6 +147,9 @@ public class MainScreen extends Pane {
      */
     private void goToKeybind() {
         KeybindView KBV = new KeybindView();
+        primaryStage.setTitle("Set a Keybind");
+        Scene testScene = new Scene(KBV, 800, 800);
+        primaryStage.setScene(testScene);
         //Button to go back to main view
         Button back = new Button("Back");
         back.setLayoutX(510);
@@ -162,25 +165,30 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
-            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
-            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
-            ArrayList<Integer> actionList = new ArrayList<>();
-            actionList.add(action.getKeyCode());
-            Action newAction = new Action(actionList);
-            if (dict.containsKey(newHotkey.getKeyCode())){
-                Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
+            try {
+                Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
+                Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+                ArrayList<Integer> actionList = new ArrayList<>();
+                actionList.add(action.getKeyCode());
+                Action newAction = new Action(actionList);
+                if (dict.containsKey(newHotkey.getKeyCode())){
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
+                    alert.show();
+                    primaryStage.setScene(mainScreenScene);
+                    return;
+                }
+                dict.put(newHotkey.getKeyCode(), newAction);
+                id++;
+                boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
+            } catch(Exception exception) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please select a key and action from the list");
                 alert.show();
-                primaryStage.setScene(mainScreenScene);
+                goToKeybind();
                 return;
             }
-            dict.put(newHotkey.getKeyCode(), newAction);
-            id++;
-            boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             primaryStage.setScene(mainScreenScene);
         });
-        primaryStage.setTitle("Set a Keybind");
-        Scene testScene = new Scene(KBV, 800, 800);
-        primaryStage.setScene(testScene);
+
         KBV.getChildren().addAll(back, save);
 
 
@@ -206,17 +214,23 @@ public class MainScreen extends Pane {
         add.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         add.setOnAction(e -> {
-            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
-            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
-            if (dict.containsKey(newHotkey.getKeyCode())){
-                Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
+            try {
+                Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
+                Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+                if (dict.containsKey(newHotkey.getKeyCode())) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
+                    alert.show();
+                    primaryStage.setScene(mainScreenScene);
+                    return;
+                }
+                ArrayList<Integer> actionList = new ArrayList<>();
+                actionList.add(action.getKeyCode());
+                goToAddToMacro(newHotkey, actionList);
+            } catch(Exception exception) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please select a key and action from the list");
                 alert.show();
-                primaryStage.setScene(mainScreenScene);
-                return;
+                goToMacro();
             }
-            ArrayList<Integer> actionList = new ArrayList<>();
-            actionList.add(action.getKeyCode());
-            goToAddToMacro(newHotkey, actionList);
         });
 
 
@@ -227,15 +241,21 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
-            Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
-            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
-            ArrayList<Integer> actionList = new ArrayList<>();
-            actionList.add(action.getKeyCode());
-            Action newAction = new Action(actionList);
-            dict.put(newHotkey.getKeyCode(), newAction);
-            id++;
-            boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
-            primaryStage.setScene(mainScreenScene);
+            try {
+                Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
+                Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+                ArrayList<Integer> actionList = new ArrayList<>();
+                actionList.add(action.getKeyCode());
+                Action newAction = new Action(actionList);
+                dict.put(newHotkey.getKeyCode(), newAction);
+                id++;
+                boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
+                primaryStage.setScene(mainScreenScene);
+            } catch (Exception exception){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please select a key and action from the list");
+                alert.show();
+                goToMacro();
+            }
         });
         primaryStage.setTitle("Set a Keybind");
         Scene testScene = new Scene(KBV, 800, 800);
@@ -266,10 +286,16 @@ public class MainScreen extends Pane {
         add.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         add.setOnAction(e -> {
-            //add the action to the list
-            Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
-            added.add(action.getKeyCode());
-            goToAddToMacro(hotkey, added);
+            try {
+                //add the action to the list
+                Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+                added.add(action.getKeyCode());
+                goToAddToMacro(hotkey, added);
+            } catch (Exception exception){
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please select an action from the list");
+                alert.show();
+                goToAddToMacro(hotkey, added);
+            }
         });
 
         Text hotkeyName = new Text();
@@ -295,13 +321,21 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
-            Hotkey action1 = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
-            added.add(action1.getKeyCode());
-            Action newAction = new Action(added);
-            dict.put(hotkey.getKeyCode(), newAction);
-            id++;
-            boolean register = OSInterface.getInstance().registerHotkey(hotkey);
-            primaryStage.setScene(mainScreenScene);
+            try {
+                Hotkey action1 = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
+                added.add(action1.getKeyCode());
+                Action newAction = new Action(added);
+                dict.put(hotkey.getKeyCode(), newAction);
+                id++;
+                boolean register = OSInterface.getInstance().registerHotkey(hotkey);
+                primaryStage.setScene(mainScreenScene);
+            } catch (Exception exception){
+                Action newAction = new Action(added);
+                dict.put(hotkey.getKeyCode(), newAction);
+                id++;
+                boolean register = OSInterface.getInstance().registerHotkey(hotkey);
+                primaryStage.setScene(mainScreenScene);
+            }
         });
 
         primaryStage.setTitle("Set a Macro");
