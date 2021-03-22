@@ -27,4 +27,12 @@ public class Action {
             OSInterface.getInstance().sendKey(i, true);
         }
     }
+
+    /**
+     * return all the keys in the action
+     * @return keys in the action
+     */
+    public ArrayList<Integer> getKeys(){
+        return this.keyCodes;
+    }
 }
