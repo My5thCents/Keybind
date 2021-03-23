@@ -11,9 +11,10 @@ import javafx.scene.layout.Pane;
  */
 public class MouseSensitivityScreen extends Pane {
 
-    Slider slider = new Slider(1, 20, 10);
+    Slider slider;
 
-    public MouseSensitivityScreen() {
+    public MouseSensitivityScreen(int speed) {
+        slider = new Slider(1, 20, speed);
         this.setStyle("-fx-background-color: #99aab5;");
 
         slider.setLayoutX(60);

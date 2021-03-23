@@ -29,6 +29,7 @@ public class MainScreen extends Pane {
     Stage primaryStage = new Stage();
     Scene mainScreenScene = new Scene(this, 800, 800);
     int id = 0;
+    int mouseSens = 10;
     public static Hashtable<Integer, Action> dict = new Hashtable<>();
 
 
@@ -448,7 +449,7 @@ public class MainScreen extends Pane {
      * back button does nothing and goes back to main screen.
      */
     private void goToMouseSensitivity() {
-        MouseSensitivityScreen mouseSensScreen = new MouseSensitivityScreen();
+        MouseSensitivityScreen mouseSensScreen = new MouseSensitivityScreen(mouseSens);
         //Button to go back to main view
         Button back = new Button("Back");
         back.setLayoutX(510);
@@ -464,7 +465,8 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
-            System.out.println(mouseSensScreen.getSensitivity());
+            mouseSens = (int) mouseSensScreen.getSensitivity();
+            OSInterface.getInstance().setMouseSpeed(mouseSens);
             primaryStage.setScene(mainScreenScene);
         });
         primaryStage.setTitle("Add New Profile");
