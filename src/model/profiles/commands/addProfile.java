@@ -14,7 +14,7 @@ public class addProfile extends CommandStatus{
      * Makes a new profile in our database
      * @param name The name we will use for the profile
      */
-    public void AddProfile(String name){
+    public addProfile(String name){
         if(profileDatabase.database().containsKey(name)){
             successful = false;
             errorMessage = "Profile with name "+ name +" already exists";
