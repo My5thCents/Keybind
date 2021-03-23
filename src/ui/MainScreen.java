@@ -391,6 +391,7 @@ public class MainScreen extends Pane {
             remove.setOnAction(e -> {
                 dict.remove(i);
                 primaryStage.setScene(mainScreenScene);
+                OSInterface.getInstance().unregisterHotkey(i);
             });
             BV.getChildren().add(remove);
         }
