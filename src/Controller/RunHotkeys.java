@@ -45,6 +45,7 @@ public class RunHotkeys implements Runnable {
          while (!stop) {
              }
          }
+    }
 
     /**
      * stop the key listener

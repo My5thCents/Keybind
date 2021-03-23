@@ -1,9 +1,11 @@
 package ui;
 
 import Controller.Action;
+import com.sun.org.apache.xerces.internal.util.SynchronizedSymbolTable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
@@ -11,8 +13,7 @@ import javafx.stage.Stage;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
-import org.jnativehook.NativeHookException;
-
+import model.profiles.commands.*;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -70,16 +71,6 @@ public class MainScreen extends Pane {
         bProgram.setLayoutY(450);
 
 
-            /*
-            Button to send user to screen to change mouse sensitivity
-             */
-        Button bMouseSens = new Button("Change Mouse Sensitivity");
-        bMouseSens.setOnAction(e -> System.out.println("Change Mouse Sensitivity"));
-        bMouseSens.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
-                "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
-        bMouseSens.setWrapText(true);
-        bMouseSens.setLayoutX(438);
-        bMouseSens.setLayoutY(450);
 
         Button bCurrentBindings = new Button("View Current Bindings");
         bCurrentBindings.setOnAction(e -> goToCurrentBindings());
@@ -89,6 +80,13 @@ public class MainScreen extends Pane {
         bCurrentBindings.setLayoutX(300);
         bCurrentBindings.setLayoutY(670);
 
+        Button bMouseSens = new Button("Change Mouse Sensitivity");
+        bMouseSens.setOnAction(e -> goToMouseSensitivity());
+        bMouseSens.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
+        bMouseSens.setWrapText(true);
+        bMouseSens.setLayoutX(438);
+        bMouseSens.setLayoutY(450);
 
 
             /*
@@ -118,25 +116,34 @@ public class MainScreen extends Pane {
 
             /*
             Button to add new profile
-             */
+                */
         Button bAddProfile = new Button("Add New Profile");
-        bAddProfile.setOnAction(e -> System.out.println("Add New Profile"));
+        bAddProfile.setOnAction(e -> goToAddProfile());
         bAddProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
         bAddProfile.setWrapText(true);
         bAddProfile.setLayoutX(315);
         bAddProfile.setLayoutY(45);
 
+
             /*
             Button to delete the current profile
              */
-        Button bDelProfile = new Button("Delete Current Profile");
-        bDelProfile.setOnAction(e -> System.out.println("Delete Current Profile"));
-        bDelProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
-                "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
-        bDelProfile.setWrapText(true);
-        bDelProfile.setLayoutX(541);
-        bDelProfile.setLayoutY(45);
+            Button bDelProfile = new Button("Delete Current Profile");
+            bDelProfile.setOnAction(e -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Delete current profile?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+                alert.showAndWait();
+                if (alert.getResult() == ButtonType.YES) {
+                    deleteProfile delP = new deleteProfile();
+                    checkActive active = new checkActive();
+                    delP.DeleteProfile(active.CheckActive().getName());
+                }
+            });
+            bDelProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                    "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
+            bDelProfile.setWrapText(true);
+            bDelProfile.setLayoutX(541);
+            bDelProfile.setLayoutY(45);
 
 
         this.getChildren().addAll(bKeybind, bMacro, bProgram, bMouseSens, bToggle, bCurrentBindings, profileSelector, bAddProfile, bDelProfile);
@@ -400,4 +407,67 @@ public class MainScreen extends Pane {
 
         BV.getChildren().addAll(title, text, back);
     }
+
+
+
+    /**
+     * Function called when user wishes to add a new profile. Reads in a profile name and creates a new profile. User can also
+     * use back button to return without making changes.
+     */
+    private void goToAddProfile() {
+        AddProfileScreen profileScreen = new AddProfileScreen();
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(510);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+
+        //Button to save name field and create profile
+        Button save = new Button("Save");
+        save.setLayoutX(640);
+        save.setLayoutY(700);
+        save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        save.setOnAction(e -> {
+            new addProfile(profileScreen.getProfileName());
+            primaryStage.setScene(mainScreenScene);
+        });
+        primaryStage.setTitle("Add New Profile");
+        Scene profScene = new Scene(profileScreen, 800, 800);
+        primaryStage.setScene(profScene);
+        profileScreen.getChildren().addAll(back, save);
+    }
+
+    /**
+     * Function called when user wishes to change mouse sensitivity. Reads in a slider value, save button saves changes,
+     * back button does nothing and goes back to main screen.
+     */
+    private void goToMouseSensitivity() {
+        MouseSensitivityScreen mouseSensScreen = new MouseSensitivityScreen();
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(510);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+
+        //Button to save sensitivity and return to main screen
+        Button save = new Button("Save");
+        save.setLayoutX(640);
+        save.setLayoutY(700);
+        save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        save.setOnAction(e -> {
+            System.out.println(mouseSensScreen.getSensitivity());
+            primaryStage.setScene(mainScreenScene);
+        });
+        primaryStage.setTitle("Add New Profile");
+        Scene sensScene = new Scene(mouseSensScreen, 800, 800);
+        primaryStage.setScene(sensScene);
+        mouseSensScreen.getChildren().addAll(back, save);
+    }
+
 }
