@@ -12,8 +12,10 @@ public class DetectProgram {
 
         ProcessBuilder processbuildier = new ProcessBuilder("tasklist.exe");
         Process process = processbuildier.start();
+        String tasks = toString(process.getInputStream());
 
-        return true;
+
+        return tasks.contains(Name);
     }
 
     public static String toString(InputStream input){
