@@ -1,8 +1,8 @@
 package model;
 
-import com.sun.jna.Native;
-import com.sun.jna.Structure;
+import com.sun.jna.*;
 import com.sun.jna.platform.win32.*;
+import com.sun.jna.win32.W32APIOptions;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -50,6 +50,28 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         return instance;
     }
 
+    protected interface User32Extended extends User32 {
+        User32Extended INSTANCE = (User32Extended)
+                Native.load("user32", User32Extended.class, W32APIOptions.DEFAULT_OPTIONS);
+
+        int SPI_GETMOUSESPEED = 0x0070;
+        int SPI_SETMOUSESPEED = 0x0071;
+
+        boolean SystemParametersInfo(
+                int uiAction,
+                int uiParam,
+                Pointer pvParam,
+                int fWinIni
+        );
+
+        boolean SystemParametersInfo(
+                int uiAction,
+                int uiParam,
+                int pvParam,
+                int fWinIni
+        );
+    }
+
     /**
      * Stops the OSInterface runnable.
      * Only should be called when the program is shutting down.
@@ -91,37 +113,26 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 WinDef.DWORD sent = user32.SendInput(length, inputs, sizeBytes);
 
                 if (sent.intValue() == 0) {
-                    System.out.println("Error sending input!");
+                    System.err.println("Error sending input!");
                 }
             }
 
-            // Register all hotkeys in the queue.
-            while (!toReg.isEmpty()) {
-                if (!registerHotkeyThread(toReg.remove())) {
-                    System.out.println("Error registering hotkey!");
-                }
-            }
-
-            // Unregister all hotkeys in the queue.
-            while (!toUnReg.isEmpty()) {
-                if (!unregisterHotkeyThread(toUnReg.remove())) {
-                    System.out.println("Error unregistering hotkey!");
-                }
-            }
+            registerQueuedHotkeys(toReg);
+            unregisterQueuedHotkeys(toUnReg);
 
             isMsg = user32.PeekMessage(msg, null, 0, 0, 1);
 
             try {
                 Thread.sleep(10);
             } catch (Exception e) {
-                System.out.println("Problem sleeping.");
+                System.err.println("Problem sleeping.");
             }
         }
 
         // Unregister all hotkeys after program termination.
         registeredKeys.forEach((k, v) -> {
             if (!unregisterHotkeyThread(k)) {
-                System.out.println("Error unregistering hotkey!");
+                System.err.println("Error unregistering hotkey!");
             }
         });
     }
@@ -150,7 +161,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
      * @param hotkey The hotkey to be registered.
      * @return If the hotkey registration was successful.
      */
-    private boolean registerHotkeyThread(Hotkey hotkey) {
+    protected boolean registerHotkeyThread(Hotkey hotkey) {
         if (registeredKeys.containsKey(hotkey.getID()))
             return false;
 
@@ -161,6 +172,28 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         }
 
         return success;
+    }
+
+    /**
+     * Registers all the hotkeys currently waiting to be registered with the OS.
+     */
+    protected void registerQueuedHotkeys(Queue<Hotkey> hotkeys) {
+        while (!hotkeys.isEmpty()) {
+            Hotkey hotkey = hotkeys.remove();
+            if (!registerHotkeyThread(hotkey))
+                System.err.println("Error registering hotkey: " + hotkey.toString());
+        }
+    }
+
+    /**
+     * Registers all the hotkeys currently waiting to be registered with the OS.
+     */
+    protected void unregisterQueuedHotkeys(Queue<Integer> ids) {
+        while (!ids.isEmpty()) {
+            int id = ids.remove();
+            if (!unregisterHotkeyThread(id))
+                System.err.println("Error registering hotkey ID: " + id);
+        }
     }
 
     @Override
@@ -187,8 +220,14 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         if (speed < 1 || speed > 20)
             return false;
 
+        boolean result = User32Extended.INSTANCE.SystemParametersInfo(
+                User32Extended.SPI_SETMOUSESPEED,
+                0,
+                speed,
+                0
+        );
 
-        return false;
+        return result;
     }
 
     @Override
@@ -205,12 +244,16 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         return pressed;
     }
 
+    private String stringProcessNameID(WinDef.DWORD processID) {
+        return "";
+    }
+
     public boolean launchApplication(String path) {
         try {
             runtime.exec(path);
             return true;
         } catch (Exception e) {
-            System.out.println("Error launching applications: " + e.getMessage());
+            System.err.println("Error launching applications: " + e.getMessage());
             return false;
         }
     }
@@ -257,7 +300,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                         mouseUp = XUP;
                         xButton = 0x0002;
                     default:
-                        System.out.println("Invalid sendKey switch state!");
+                        System.err.println("Invalid sendKey switch state!");
                         break;
                 }
 
