@@ -6,7 +6,7 @@ import java.util.Hashtable;
  * keyValueMap initializes a Hashtable which maps the string value in the UI to a Windows Integer key code.
  */
 class KeyValueMap {
-    static Hashtable<String, Integer> matchKey;
+    Hashtable<String, Integer> matchKey;
 
     public KeyValueMap() {
         matchKey = new Hashtable<String, Integer>();
