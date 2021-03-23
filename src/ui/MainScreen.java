@@ -12,9 +12,8 @@ import javafx.stage.Stage;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
-import model.profiles.commands.addProfile;
-import model.profiles.commands.checkActive;
-import model.profiles.commands.deleteProfile;
+import model.profiles.commands.*;
+import model.profiles.entities.profile;
 import org.jnativehook.NativeHookException;
 
 import java.awt.event.KeyEvent;
@@ -31,6 +30,9 @@ public class MainScreen extends Pane {
     int id = 0;
     int mouseSens = 10;
     public static Hashtable<Integer, Action> dict = new Hashtable<>();
+    ComboBox<String> profileSelector;
+    boolean isOn = true;
+    String prevProfile;
 
 
     public MainScreen() {
@@ -99,8 +101,23 @@ public class MainScreen extends Pane {
         /*
         Button to toggle keybinds on/off
          */
-        Button bToggle = new Button("Toggle Keybinds On/Off");
-        bToggle.setOnAction(e -> System.out.println("Toggle On/Off"));
+        Button bToggle = new Button("Toggle Keybinds Off");
+        bToggle.setOnAction(e -> {
+            checkActive check = new checkActive();
+            setActive setProf = new setActive();
+            if (isOn) {
+                prevProfile = check.CheckActive().name;
+                setProf.SetActive("Default");
+                profileSelector.setValue("Default");
+                isOn = false;
+                bToggle.setText("Toggle Keybinds On");
+            } else {
+                setProf.SetActive(prevProfile);
+                profileSelector.setValue(prevProfile);
+                isOn = true;
+                bToggle.setText("Toggle Keybinds Off");
+            }
+        });
         bToggle.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
         bToggle.setWrapText(true);
@@ -110,16 +127,19 @@ public class MainScreen extends Pane {
             /*
         Drop down box to select profile
          */
-        ComboBox<String> profileSelector = new ComboBox<String>();
-        profileSelector.getItems().add("Profile 1");
-        profileSelector.getItems().add("Profile 2");
-        profileSelector.getItems().add("Profile 3");
-        profileSelector.setValue("Profile 1");
+        profileSelector = new ComboBox<>();
+        checkActive activeP = new checkActive();
+        profileSelector.setValue(activeP.CheckActive().name);
+        currentProfiles profiles = new currentProfiles();
+        for (String p : profiles.findAllProfiles()) {
+            profileSelector.getItems().add(p);
+        }
         profileSelector.setStyle("-fx-background-color: lightgrey; -fx-text-fill: white; -fx-font-size: 20; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
         profileSelector.setLayoutX(89);
         profileSelector.setLayoutY(45);
-        profileSelector.setOnAction(e -> System.out.println(profileSelector.getValue()));
+        setActive setActive = new setActive();
+        profileSelector.setOnAction(e -> setActive.SetActive(profileSelector.getValue()));
 
         /*
         Button to add new profile
@@ -142,7 +162,12 @@ public class MainScreen extends Pane {
             if (alert.getResult() == ButtonType.YES) {
                 deleteProfile delP = new deleteProfile();
                 checkActive active = new checkActive();
-                delP.DeleteProfile(active.CheckActive().getName());
+                if (!active.CheckActive().getName().equals("Default")) {
+                    profileSelector.getItems().remove(active.CheckActive().getName());
+                    delP.DeleteProfile(active.CheckActive().getName());
+                    setActive set = new setActive();
+                    set.SetActive("Default");
+                }
             }
         });
         bDelProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
@@ -436,6 +461,7 @@ public class MainScreen extends Pane {
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
             new addProfile(profileScreen.getProfileName());
+            profileSelector.getItems().add(profileScreen.getProfileName());
             primaryStage.setScene(mainScreenScene);
         });
         primaryStage.setTitle("Add New Profile");
