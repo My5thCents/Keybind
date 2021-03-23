@@ -8,6 +8,12 @@ import java.util.Scanner;
 
 public class DetectProgram {
 
+
+    /**
+     *
+     * @param Name A string of the name of the program you wish to see if it is running.
+     * @return True if program is running or False if it isn't
+     */
     public static boolean isRunning(String Name) throws IOException {
 
         ProcessBuilder processbuildier = new ProcessBuilder("tasklist.exe");
@@ -25,4 +31,5 @@ public class DetectProgram {
 
         return output;
     }
+
 }
