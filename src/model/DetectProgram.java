@@ -7,4 +7,12 @@ import java.util.Scanner;
 
 
 public class DetectProgram {
+
+    public static boolean isRunning(String Name) throws IOException {
+
+        ProcessBuilder processbuildier = new ProcessBuilder("tasklist.exe");
+        Process process = processbuildier.start();
+
+        return true;
+    }
 }
