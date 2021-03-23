@@ -15,4 +15,12 @@ public class DetectProgram {
 
         return true;
     }
+
+    public static String toString(InputStream input){
+        Scanner scan = new Scanner(input, "UTF-8").useDelimiter("\\A");
+        String output = scan.hasNext() ? scan.next() : "";
+        scan.close();
+
+        return output;
+    }
 }
