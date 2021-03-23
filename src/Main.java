@@ -2,7 +2,6 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import Controller.RunHotkeys;
 import model.OSInterface;
-import org.jnativehook.NativeHookException;
 import ui.MainScreen;
 
 public class Main extends Application {
@@ -16,13 +15,18 @@ public class Main extends Application {
     }
 
 
-    public static void main(String[] args) throws NativeHookException {
+    public static void main(String[] args) {
         RunHotkeys runHotkeys = new RunHotkeys();
         Thread thread = new Thread(OSInterface.getInstance());
-        new Thread(runHotkeys);
+        thread.setName("os-thread");
+        Thread demoThread = new Thread(runHotkeys);
+        demoThread.setName("keybind-thread");
         thread.start();
+        demoThread.start();
+
         launch(args);
 
         OSInterface.getInstance().stop();
+        runHotkeys.stop();
     }
 }
