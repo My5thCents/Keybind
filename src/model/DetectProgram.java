@@ -24,6 +24,11 @@ public class DetectProgram {
         return tasks.contains(Name);
     }
 
+    /**
+     * used for isRunning method to format Inputsteam into usable format.
+     * @param input unformatted string from InputStream
+     * @return the formatted string.
+     */
     public static String toString(InputStream input){
         Scanner scan = new Scanner(input, "UTF-8").useDelimiter("\\A");
         String output = scan.hasNext() ? scan.next() : "";
