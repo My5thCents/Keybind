@@ -18,7 +18,9 @@ public class Main extends Application {
     public static void main(String[] args) {
         RunHotkeys runHotkeys = new RunHotkeys();
         Thread thread = new Thread(OSInterface.getInstance());
+        thread.setName("os-thread");
         Thread demoThread = new Thread(runHotkeys);
+        demoThread.setName("keybind-thread");
         thread.start();
         demoThread.start();
 
