@@ -212,4 +212,25 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
             keySendQueue.add(inputs);
         }
     }
+
+    /**
+     * Moves the mouse by the given pixels.
+     * @param x The pixels to move in the x-axis.
+     * @param y The pixels to move in the y-axis.
+     */
+    public void moveMouse(int x, int y) {
+        WinUser.INPUT[] inputs = (WinUser.INPUT[]) new WinUser.INPUT().toArray(1);
+
+        final int MOUSEEVENTF_MOVE = 0x0001;
+        final int MOUSEEVENTF_ABSOLUTE = 0x8000;
+
+        inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_MOUSE);
+        inputs[0].input.setType("mi");
+        inputs[0].input.mi.dx = new WinDef.LONG(x);
+        inputs[0].input.mi.dy = new WinDef.LONG(y);
+        inputs[0].input.mi.dwFlags = new WinDef.DWORD(MOUSEEVENTF_MOVE);
+        inputs[0].input.mi.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+
+        keySendQueue.add(inputs);
+    }
 }
