@@ -3,7 +3,9 @@ package model;
 import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.*;
+import model.profiles.commands.saveEverything;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -52,8 +54,10 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
      * Stops the OSInterface runnable.
      * Only should be called when the program is shutting down.
      */
-    public void stop() {
+    public void stop() throws IOException {
         this.stop = true;
+        saveEverything end = new saveEverything();
+        end.saveToFile();
     }
 
     /**
