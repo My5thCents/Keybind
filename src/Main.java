@@ -11,10 +11,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         // Initialize at main UI screen
         new MainScreen();
-
-
     }
-
 
     public static void main(String[] args) throws NativeHookException {
         RunHotkeys runHotkeys = new RunHotkeys();
