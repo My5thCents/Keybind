@@ -9,7 +9,7 @@ public class Hotkey {
     /**
      * Unique ID of the hotkey.
      */
-    protected final int id;
+    protected int id;
 
     /**
      * Modifier for the hotkey.

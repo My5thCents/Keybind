@@ -1,18 +1,14 @@
 package model;
 
-public class mouseEmulator extends Hotkey implements InputEmulator{
+public class mouseEmulator{
     //Directions can be: L(left),R(right),U(up),D(down)
     private final String direction;
     /**
-     * Constructs an immutable hotkey.
-     *  @param keyCode  The virtual keycode of the hotkey.
-     * @param id       The unique ID of the hotkey.
-     * @param modifier The modifier of the hotkey. (Should be null for this)
+     * Constructs an mouseEmulator for a hotkey.
      * @param d the direction in which the mouse should move
      */
-    public mouseEmulator(int keyCode, int id, int modifier, String d) {
-        super(keyCode, id, modifier);
-        this.direction = d;
+    public mouseEmulator(String d) {
+        direction = d;
     }
 
     public String move(){
@@ -34,17 +30,12 @@ public class mouseEmulator extends Hotkey implements InputEmulator{
         }
         return "Not moved\n";
     }
-
-    @Override
-    public void sendKey(int keyCode, boolean release) {
-    }
-
     public static void main(String[] args){
-        mouseEmulator test = new mouseEmulator(0,1,0,"L");
-        mouseEmulator test2 = new mouseEmulator(2,2,0,"R");
-        mouseEmulator test3 = new mouseEmulator(5,3,0,"U");
-        mouseEmulator test4 = new mouseEmulator(4,4,0,"D");
-        mouseEmulator test5 = new mouseEmulator(5,5,0,"E");
+        mouseEmulator test = new mouseEmulator("L");
+        mouseEmulator test2 = new mouseEmulator("R");
+        mouseEmulator test3 = new mouseEmulator("U");
+        mouseEmulator test4 = new mouseEmulator("D");
+        mouseEmulator test5 = new mouseEmulator("E");
         System.out.println(test.direction);
         System.out.println(test2.direction);
         System.out.println(test3.direction);
@@ -54,5 +45,6 @@ public class mouseEmulator extends Hotkey implements InputEmulator{
         System.out.print(test3.move());
         System.out.print(test4.move());
         System.out.println(test5.move());
+
     }
 }
