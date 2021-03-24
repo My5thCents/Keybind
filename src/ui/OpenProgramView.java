@@ -31,7 +31,7 @@ public class OpenProgramView extends Pane {
         programField.setLayoutX(60);
         programField.setLayoutY(500);
         programField.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; " +
-                "-fx-pref-width: 400px; -fx-pref-height: 50px;");
+                "-fx-pref-width: 600px; -fx-pref-height: 50px;");
 
         //Available options to select in the text field
         String[] keyToBindOptions = lists.getOptionstoPress();
