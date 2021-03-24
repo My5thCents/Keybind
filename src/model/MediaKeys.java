@@ -28,7 +28,6 @@ public class MediaKeys extends Hotkey implements InputEmulator{
 
     @Override
     public void sendKey(int keyCode, boolean release){
-
         if(keyCode == play){
             System.out.println("sending Play keycode" + keyCode);
         }
