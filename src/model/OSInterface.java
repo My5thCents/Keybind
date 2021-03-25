@@ -1,9 +1,9 @@
 package model;
 
-import com.sun.jna.Native;
-import com.sun.jna.Structure;
+import com.sun.jna.*;
 import com.sun.jna.platform.win32.*;
 import model.profiles.commands.saveEverything;
+import com.sun.jna.win32.W32APIOptions;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,9 +18,10 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     private static OSInterface instance = null;
 
     private User32 user32 = User32.INSTANCE;
+    Runtime runtime;
     private WinDef.HWND hwnd;
     private HashMap<Integer, Hotkey> registeredKeys;
-    private HashMap<Integer, Boolean> pressedKeys;
+    private HashMap<Integer, Integer> pressedKeys;
     private WinUser.MSG msg;
     /** Signal for the OSInterface to stop it's thread runnable. **/
     private boolean stop = false;
@@ -35,6 +36,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         registeredKeys = new HashMap<>();
         pressedKeys = new HashMap<>();
         msg = new WinUser.MSG();
+        runtime = Runtime.getRuntime();
         hotkeyRegQueue = new LinkedBlockingQueue<>();
         hotkeyUnRegQueue = new LinkedBlockingQueue<>();
         keySendQueue = new LinkedBlockingQueue<>();
@@ -48,6 +50,28 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
             instance = new OSInterface();
 
         return instance;
+    }
+
+    protected interface User32Extended extends User32 {
+        User32Extended INSTANCE = (User32Extended)
+                Native.load("user32", User32Extended.class, W32APIOptions.DEFAULT_OPTIONS);
+
+        int SPI_GETMOUSESPEED = 0x0070;
+        int SPI_SETMOUSESPEED = 0x0071;
+
+        boolean SystemParametersInfo(
+                int uiAction,
+                int uiParam,
+                Pointer pvParam,
+                int fWinIni
+        );
+
+        boolean SystemParametersInfo(
+                int uiAction,
+                int uiParam,
+                int pvParam,
+                int fWinIni
+        );
     }
 
     /**
@@ -70,7 +94,8 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 if (msg.message == User32.WM_HOTKEY) {
                     int keyPressed = msg.wParam.intValue();
                     if (registeredKeys.containsKey(keyPressed)) {
-                        pressedKeys.put(keyPressed, true);
+                        int keys = pressedKeys.get(keyPressed);
+                        pressedKeys.put(keyPressed, keys + 1);
                     }
                 }
             }
@@ -92,31 +117,26 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 WinDef.DWORD sent = user32.SendInput(length, inputs, sizeBytes);
 
                 if (sent.intValue() == 0) {
-                    System.out.println("Error sending input!");
+                    System.err.println("Error sending input!");
                 }
             }
 
-            // Register all hotkeys in the queue.
-            while (!toReg.isEmpty()) {
-                if (!registerHotkeyThread(toReg.remove())) {
-                    System.out.println("Error registering hotkey!");
-                }
-            }
-
-            // Unregister all hotkeys in the queue.
-            while (!toUnReg.isEmpty()) {
-                if (!unregisterHotkeyThread(toUnReg.remove())) {
-                    System.out.println("Error unregistering hotkey!");
-                }
-            }
+            registerQueuedHotkeys(toReg);
+            unregisterQueuedHotkeys(toUnReg);
 
             isMsg = user32.PeekMessage(msg, null, 0, 0, 1);
+
+            try {
+                Thread.sleep(10);
+            } catch (Exception e) {
+                System.err.println("Problem sleeping.");
+            }
         }
 
         // Unregister all hotkeys after program termination.
         registeredKeys.forEach((k, v) -> {
             if (!unregisterHotkeyThread(k)) {
-                System.out.println("Error unregistering hotkey!");
+                System.err.println("Error unregistering hotkey!");
             }
         });
     }
@@ -145,17 +165,39 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
      * @param hotkey The hotkey to be registered.
      * @return If the hotkey registration was successful.
      */
-    private boolean registerHotkeyThread(Hotkey hotkey) {
+    protected boolean registerHotkeyThread(Hotkey hotkey) {
         if (registeredKeys.containsKey(hotkey.getID()))
             return false;
 
         boolean success = user32.RegisterHotKey(null, hotkey.getID(), hotkey.getModifier(), hotkey.getKeyCode());
         if (success) {
             registeredKeys.put(hotkey.getID(), hotkey);
-            pressedKeys.put(hotkey.getID(), false);
+            pressedKeys.put(hotkey.getID(), 0);
         }
 
         return success;
+    }
+
+    /**
+     * Registers all the hotkeys currently waiting to be registered with the OS.
+     */
+    protected void registerQueuedHotkeys(Queue<Hotkey> hotkeys) {
+        while (!hotkeys.isEmpty()) {
+            Hotkey hotkey = hotkeys.remove();
+            if (!registerHotkeyThread(hotkey))
+                System.err.println("Error registering hotkey: " + hotkey.toString());
+        }
+    }
+
+    /**
+     * Registers all the hotkeys currently waiting to be registered with the OS.
+     */
+    protected void unregisterQueuedHotkeys(Queue<Integer> ids) {
+        while (!ids.isEmpty()) {
+            int id = ids.remove();
+            if (!unregisterHotkeyThread(id))
+                System.err.println("Error registering hotkey ID: " + id);
+        }
     }
 
     @Override
@@ -179,7 +221,17 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
     @Override
     public boolean setMouseSpeed(int speed) {
-        return false;
+        if (speed < 1 || speed > 20)
+            return false;
+
+        boolean result = User32Extended.INSTANCE.SystemParametersInfo(
+                User32Extended.SPI_SETMOUSESPEED,
+                0,
+                speed,
+                0
+        );
+
+        return result;
     }
 
     @Override
@@ -187,31 +239,109 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         if (!pressedKeys.containsKey(id))
             return false;
 
-        boolean pressed = pressedKeys.get(id);
-        // Set the hotkey back to default not pressed.
-        pressedKeys.put(id, false);
+        int keysLeft = pressedKeys.get(id);
+        boolean pressed = keysLeft > 0;
+        // Decrement the pressedKeys value.
+        if (keysLeft > 0)
+            pressedKeys.put(id, keysLeft - 1);
 
         return pressed;
+    }
+
+    private String stringProcessNameID(WinDef.DWORD processID) {
+        return "";
+    }
+
+    public boolean launchApplication(String path) {
+        try {
+            runtime.exec(path);
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error launching applications: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public void sendKey(int keyCode, boolean release) {
         if (keyCode > 0 && keyCode < 255) {
             WinUser.INPUT[] inputs = (WinUser.INPUT[]) new WinUser.INPUT().toArray(2);
+            final int LEFTDOWN = 0x0002;
+            final int LEFTUP = 0x0004;
+            final int RIGHTDOWN = 0x0008;
+            final int RIGHTUP = 0x0010;
+            final int MIDDLEDOWN = 0x0020;
+            final int MIDDLEUP = 0x0040;
+            final int XDOWN = 0x0080;
+            final int XUP = 0x0100;
 
-            // Key down input
-            inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
-            inputs[0].input.setType("ki");
-            inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
-            inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
-            inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+            // Mouse input
+            if (keyCode < 7 && keyCode != 3) {
+                int mouseDown = 0;
+                int mouseUp = 0;
+                int xButton = 0;
 
-            // Key up input
-            inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
-            inputs[1].input.setType("ki");
-            inputs[1].input.ki.wVk = new WinDef.WORD(keyCode);
-            inputs[1].input.ki.dwFlags = new WinDef.DWORD(WinUser.KEYBDINPUT.KEYEVENTF_KEYUP);
-            inputs[1].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+                switch (keyCode) {
+                    case 1:
+                        mouseDown = LEFTDOWN;
+                        mouseUp = LEFTUP;
+                        break;
+                    case 2:
+                        mouseDown = RIGHTDOWN;
+                        mouseUp = RIGHTUP;
+                        break;
+                    case 4:
+                        mouseDown = MIDDLEDOWN;
+                        mouseUp = MIDDLEUP;
+                        break;
+                    case 5:
+                        mouseDown = XDOWN;
+                        mouseUp = XUP;
+                        xButton = 0x0001;
+                        break;
+                    case 6:
+                        mouseDown = XDOWN;
+                        mouseUp = XUP;
+                        xButton = 0x0002;
+                    default:
+                        System.err.println("Invalid sendKey switch state!");
+                        break;
+                }
+
+                // Mouse button input
+                inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_MOUSE);
+                inputs[0].input.setType("mi");
+
+                if (xButton != 0) {
+                    inputs[0].input.mi.mouseData = new WinDef.DWORD(xButton);
+                }
+
+                if (release)
+                    inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseUp);
+                else
+                    inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseDown | mouseUp);
+
+                inputs[0].input.mi.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+
+            }
+            // Keyboard input
+            else {
+                if (!release) {
+                    // Key down input
+                    inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+                    inputs[0].input.setType("ki");
+                    inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
+                    inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
+                    inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+                }
+
+                // Key up input
+                inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+                inputs[1].input.setType("ki");
+                inputs[1].input.ki.wVk = new WinDef.WORD(keyCode);
+                inputs[1].input.ki.dwFlags = new WinDef.DWORD(WinUser.KEYBDINPUT.KEYEVENTF_KEYUP);
+                inputs[1].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+            }
 
             keySendQueue.add(inputs);
         }
