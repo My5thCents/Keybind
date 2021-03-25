@@ -12,9 +12,8 @@ import javafx.stage.Stage;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
-import model.profiles.commands.addProfile;
-import model.profiles.commands.checkActive;
-import model.profiles.commands.deleteProfile;
+import model.profiles.commands.*;
+import model.profiles.entities.profile;
 import org.jnativehook.NativeHookException;
 
 import java.awt.event.KeyEvent;
@@ -29,7 +28,11 @@ public class MainScreen extends Pane {
     Stage primaryStage = new Stage();
     Scene mainScreenScene = new Scene(this, 800, 800);
     int id = 0;
+    int mouseSens = 10;
     public static Hashtable<Integer, Action> dict = new Hashtable<>();
+    ComboBox<String> profileSelector;
+    boolean isOn = true;
+    String prevProfile;
 
 
     public MainScreen() {
@@ -63,10 +66,10 @@ public class MainScreen extends Pane {
         bMacro.setLayoutY(200);
 
         /*
-        Button to send user to screen to set a new keybind.
+        Button to send user to screen to set a new keybind which opens a program.
          */
         Button bProgram = new Button("Bind a Key to Program");
-        bProgram.setOnAction(e -> System.out.println("Bind a Key to Program"));
+        bProgram.setOnAction(e -> goToAddProgram());
         bProgram.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 30; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 260px; -fx-pref-height: 150px; -fx-text-align: center;");
         bProgram.setWrapText(true);
@@ -98,8 +101,23 @@ public class MainScreen extends Pane {
         /*
         Button to toggle keybinds on/off
          */
-        Button bToggle = new Button("Toggle Keybinds On/Off");
-        bToggle.setOnAction(e -> System.out.println("Toggle On/Off"));
+        Button bToggle = new Button("Toggle Keybinds Off");
+        bToggle.setOnAction(e -> {
+            checkActive check = new checkActive();
+            setActive setProf = new setActive();
+            if (isOn) {
+                prevProfile = check.CheckActive().name;
+                setProf.SetActive("Default");
+                profileSelector.setValue("Default");
+                isOn = false;
+                bToggle.setText("Toggle Keybinds On");
+            } else {
+                setProf.SetActive(prevProfile);
+                profileSelector.setValue(prevProfile);
+                isOn = true;
+                bToggle.setText("Toggle Keybinds Off");
+            }
+        });
         bToggle.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
         bToggle.setWrapText(true);
@@ -109,16 +127,19 @@ public class MainScreen extends Pane {
             /*
         Drop down box to select profile
          */
-        ComboBox<String> profileSelector = new ComboBox<String>();
-        profileSelector.getItems().add("Profile 1");
-        profileSelector.getItems().add("Profile 2");
-        profileSelector.getItems().add("Profile 3");
-        profileSelector.setValue("Profile 1");
+        profileSelector = new ComboBox<>();
+        checkActive activeP = new checkActive();
+        profileSelector.setValue(activeP.CheckActive().name);
+        currentProfiles profiles = new currentProfiles();
+        for (String p : profiles.findAllProfiles()) {
+            profileSelector.getItems().add(p);
+        }
         profileSelector.setStyle("-fx-background-color: lightgrey; -fx-text-fill: white; -fx-font-size: 20; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
         profileSelector.setLayoutX(89);
         profileSelector.setLayoutY(45);
-        profileSelector.setOnAction(e -> System.out.println(profileSelector.getValue()));
+        setActive setActive = new setActive();
+        profileSelector.setOnAction(e -> setActive.SetActive(profileSelector.getValue()));
 
         /*
         Button to add new profile
@@ -141,7 +162,12 @@ public class MainScreen extends Pane {
             if (alert.getResult() == ButtonType.YES) {
                 deleteProfile delP = new deleteProfile();
                 checkActive active = new checkActive();
-                delP.DeleteProfile(active.CheckActive().getName());
+                if (!active.CheckActive().getName().equals("Default")) {
+                    profileSelector.getItems().remove(active.CheckActive().getName());
+                    delP.DeleteProfile(active.CheckActive().getName());
+                    setActive set = new setActive();
+                    set.SetActive("Default");
+                }
             }
         });
         bDelProfile.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
@@ -168,7 +194,10 @@ public class MainScreen extends Pane {
         back.setLayoutY(700);
         back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
-        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
 
         //Button to save fields and enter keybind to profile
         Button save = new Button("Save");
@@ -187,6 +216,7 @@ public class MainScreen extends Pane {
                     Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
                     alert.show();
                     primaryStage.setScene(mainScreenScene);
+                    primaryStage.setTitle("");
                     return;
                 }
                 dict.put(newHotkey.getKeyCode(), newAction);
@@ -199,6 +229,7 @@ public class MainScreen extends Pane {
                 return;
             }
             primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
         });
 
         KBV.getChildren().addAll(back, save);
@@ -217,7 +248,10 @@ public class MainScreen extends Pane {
         back.setLayoutY(700);
         back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
-        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
 
         ArrayList<Integer> added = new ArrayList<>();
         Button add = new Button("Add Key");
@@ -233,6 +267,7 @@ public class MainScreen extends Pane {
                     Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
                     alert.show();
                     primaryStage.setScene(mainScreenScene);
+                    primaryStage.setTitle("");
                     return;
                 }
                 ArrayList<Integer> actionList = new ArrayList<>();
@@ -263,6 +298,7 @@ public class MainScreen extends Pane {
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
                 primaryStage.setScene(mainScreenScene);
+                primaryStage.setTitle("");
             } catch (Exception exception){
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Please select a key and action from the list");
                 alert.show();
@@ -289,7 +325,10 @@ public class MainScreen extends Pane {
         back.setLayoutY(700);
         back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
-        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
         Button add = new Button("Add Key");
 
         //Button to add a new key to the macro
@@ -341,12 +380,14 @@ public class MainScreen extends Pane {
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(hotkey);
                 primaryStage.setScene(mainScreenScene);
+                primaryStage.setTitle("");
             } catch (Exception exception){
                 Action newAction = new Action(added);
                 dict.put(hotkey.getKeyCode(), newAction);
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(hotkey);
                 primaryStage.setScene(mainScreenScene);
+                primaryStage.setTitle("");
             }
         });
 
@@ -371,7 +412,10 @@ public class MainScreen extends Pane {
         back.setLayoutY(700);
         back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
-        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
 
         Text title = new Text();
         title.setLayoutY(100);
@@ -403,6 +447,7 @@ public class MainScreen extends Pane {
             remove.setOnAction(e -> {
                 dict.remove(i);
                 primaryStage.setScene(mainScreenScene);
+                primaryStage.setTitle("");
                 OSInterface.getInstance().unregisterHotkey(i);
             });
             BV.getChildren().add(remove);
@@ -425,7 +470,10 @@ public class MainScreen extends Pane {
         back.setLayoutY(700);
         back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
-        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
 
         //Button to save name field and create profile
         Button save = new Button("Save");
@@ -435,7 +483,9 @@ public class MainScreen extends Pane {
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
             new addProfile(profileScreen.getProfileName());
+            profileSelector.getItems().add(profileScreen.getProfileName());
             primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
         });
         primaryStage.setTitle("Add New Profile");
         Scene profScene = new Scene(profileScreen, 800, 800);
@@ -448,14 +498,17 @@ public class MainScreen extends Pane {
      * back button does nothing and goes back to main screen.
      */
     private void goToMouseSensitivity() {
-        MouseSensitivityScreen mouseSensScreen = new MouseSensitivityScreen();
+        MouseSensitivityScreen mouseSensScreen = new MouseSensitivityScreen(mouseSens);
         //Button to go back to main view
         Button back = new Button("Back");
         back.setLayoutX(510);
         back.setLayoutY(700);
         back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
-        back.setOnAction(e -> primaryStage.setScene(mainScreenScene));
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
 
         //Button to save sensitivity and return to main screen
         Button save = new Button("Save");
@@ -464,13 +517,73 @@ public class MainScreen extends Pane {
         save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
                 "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
         save.setOnAction(e -> {
-            System.out.println(mouseSensScreen.getSensitivity());
+            mouseSens = (int) mouseSensScreen.getSensitivity();
+            OSInterface.getInstance().setMouseSpeed(mouseSens);
             primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
         });
-        primaryStage.setTitle("Add New Profile");
+        primaryStage.setTitle("Set Mouse Sensitivity");
         Scene sensScene = new Scene(mouseSensScreen, 800, 800);
         primaryStage.setScene(sensScene);
         mouseSensScreen.getChildren().addAll(back, save);
+    }
+
+    /**
+     * Function called when user wishes to make a new keybind. Opens the KeybindView class in the stage.
+     */
+    private void goToAddProgram() {
+        OpenProgramView programView = new OpenProgramView();
+        primaryStage.setTitle("Bind a Key to Open Program");
+        Scene programScene = new Scene(programView, 800, 800);
+        primaryStage.setScene(programScene);
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(510);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
+
+        //Button to save fields and enter keybind to profile
+        Button save = new Button("Save");
+        save.setLayoutX(640);
+        save.setLayoutY(700);
+        save.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        save.setOnAction(e -> {
+            try {
+                Hotkey newHotkey = new Hotkey(programView.getKeyToBind(), id, Modifier.NONE.val());
+                // Need to add functionality to add open program as keybind action
+                System.out.println(programView.getProgramPath());
+                ArrayList<Integer> actionList = new ArrayList<>();
+                //actionList.add(action.getKeyCode());
+                Action newAction = new Action(actionList);
+                if (dict.containsKey(newHotkey.getKeyCode())){
+                    Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
+                    alert.show();
+                    primaryStage.setScene(mainScreenScene);
+                    primaryStage.setTitle("");
+                    return;
+                }
+                dict.put(newHotkey.getKeyCode(), newAction);
+                id++;
+                boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
+            } catch(Exception exception) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Please select a key and action from the list");
+                alert.show();
+                goToKeybind();
+                return;
+            }
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
+
+        programView.getChildren().addAll(back, save);
+
+
     }
 
 
