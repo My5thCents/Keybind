@@ -6,7 +6,7 @@ import java.util.TreeMap;
 
 public class profile {
     public String name;
-    private static TreeMap<Integer,Hotkey> HKeys;
+    public TreeMap<Integer,Hotkey> HKeys;
     /**
      * Initializes an instance of a profile with no hotkeys
      * @param name the name of our profile
