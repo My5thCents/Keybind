@@ -27,7 +27,7 @@ public class Action {
     public void preformAction(){
         //for each keycode in the list, preform it
         for(Integer keyCode:this.getKeys()){
-            OSInterface.getInstance().sendKey(keyCode, true);
+            OSInterface.getInstance().sendKey(keyCode, false);
         }
     }
 }

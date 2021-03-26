@@ -23,7 +23,6 @@ public class KeyListener implements NativeKeyListener {
         checkActive check = new checkActive();
         if (check.CheckActive().hasHotkey(map.get(nativeKeyEvent.getKeyCode())))
             check.CheckActive().getHotKey(map.get(nativeKeyEvent.getKeyCode())).preformAction();
-        System.out.println(check.CheckActive().HKeys);
 
     }
 

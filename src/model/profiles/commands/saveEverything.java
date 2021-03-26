@@ -69,13 +69,14 @@ public class saveEverything {
                 //Go through each hotkey in the profile and add it to the database
                 //To the correct profile
                 for (JsonElement profileHotkey : profileHotkeys) {
+
                     //Get the hotkey values
                     JsonObject theHotKeyValues = (JsonObject) profileHotkey;
                     //Create a new addHotkey value
                     addHotkey addHK = new addHotkey();
                     //Get all our values from the JSON object
                     int KeyCode = theHotKeyValues.get("KeyCode").getAsInt();
-                    JsonArray hotkeys = theHotKeyValues.get("HotKeys").getAsJsonArray();
+                    JsonArray hotkeys = theHotKeyValues.get("Actions").getAsJsonArray();
                     ArrayList<Integer> actions = new ArrayList<>();
                     if (hotkeys != null){
                         for (int i = 0; i<hotkeys.size(); i++){
