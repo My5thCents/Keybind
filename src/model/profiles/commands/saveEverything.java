@@ -1,10 +1,12 @@
 package model.profiles.commands;
+import Controller.Action;
 import com.google.gson.*;
 import model.Hotkey;
 import model.profiles.database.profileDatabase;
 import model.profiles.entities.profile;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -29,12 +31,13 @@ public class saveEverything {
             pro.addProperty("Name",profile.getKey());
             //Used to store all the hotkeys in the next loop
             JsonArray hotKeyArray = new JsonArray();
-            for(Map.Entry<Integer, Hotkey> key: profile.getValue().HKeys.entrySet()){
+            for(Map.Entry<Integer, Action> key: profile.getValue().HKeys.entrySet()){
                 //One Json object that contains the hotkey information
                 JsonObject hk = new JsonObject();
-                hk.addProperty("ID",key.getValue().getID());
-                hk.addProperty("KeyCode",key.getValue().getKeyCode());
-                hk.addProperty("Modifier",key.getValue().getModifier());
+                hk.addProperty("KeyCode", key.getKey());
+                Gson gson = new GsonBuilder().create();
+                JsonArray newArray = gson.toJsonTree(key.getValue().getKeys()).getAsJsonArray();
+                hk.add("Actions",newArray);
                 hotKeyArray.add(hk);
             }
             //Add the hotkeys to our profile
@@ -71,11 +74,16 @@ public class saveEverything {
                     //Create a new addHotkey value
                     addHotkey addHK = new addHotkey();
                     //Get all our values from the JSON object
-                    int ID = theHotKeyValues.get("ID").getAsInt();
                     int KeyCode = theHotKeyValues.get("KeyCode").getAsInt();
-                    int Mod = theHotKeyValues.get("Modifier").getAsInt();
-                    Hotkey addHotKeyToProfile = new Hotkey(KeyCode, ID, Mod);
-                    addHK.AddHotkey(profileName, addHotKeyToProfile);
+                    JsonArray hotkeys = theHotKeyValues.get("HotKeys").getAsJsonArray();
+                    ArrayList<Integer> actions = new ArrayList<>();
+                    if (hotkeys != null){
+                        for (int i = 0; i<hotkeys.size(); i++){
+                            actions.add(hotkeys.get(i).getAsInt());
+                        }
+                    }
+                    Action addHotKeyToProfile = new Action(actions);
+                    addHK.AddHotkey(profileName, KeyCode, addHotKeyToProfile);
 
                 }
             }
