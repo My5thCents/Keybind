@@ -33,7 +33,7 @@ public class OptionsList {
                 "Number Lock", "/ Numpad slash", "* Numpad asterisk", "- Numpad dash", "Numpad 7", "Numpad 8", "Numpad 9",
                 "+ Numpad plus", "Numpad 4", "Numpad 5", "Numpad 6", "Numpad 1", "Numpad 2", "Numpad 3",
                 "Numpad 0", ". Numpad period", "Volume mute/unmute", "Media play/pause",
-                "Media next track", "Media previous track"
+                "Media next track", "Media previous track", "Move Mouse Left", "Move Mouse Right", "Move Mouse Up", "Move Mouse Down"
         };
     }
 
