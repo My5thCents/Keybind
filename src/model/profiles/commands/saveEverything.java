@@ -60,7 +60,7 @@ public class saveEverything {
             for (JsonElement jsonElement : file) {
                 //Get the profile from the JSON file
                 JsonObject profile = (JsonObject) jsonElement;
-                String profileName = profile.get("Name").toString();
+                String profileName = profile.get("Name").toString().substring(1, profile.get("Name").toString().length()-1);
                 //Add the profile to the database
                 profile addToDatabase = new profile(profileName);
                 profileDatabase.database().put(profileName, addToDatabase);

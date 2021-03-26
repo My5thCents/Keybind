@@ -10,20 +10,20 @@ import static ui.MainScreen.dict;
 
 public class KeyListener implements NativeKeyListener {
 
-    checkActive check;
 
     /**
      * empty constructor
      */
     public KeyListener(){
-        this.check = new checkActive();
     }
 
     @Override
     public void nativeKeyPressed(NativeKeyEvent nativeKeyEvent) {
         //if key pressed is in dictionary
-        if (this.check.CheckActive().hasHotkey(map.get(nativeKeyEvent.getKeyCode())))
+        checkActive check = new checkActive();
+        if (check.CheckActive().hasHotkey(map.get(nativeKeyEvent.getKeyCode())))
             check.CheckActive().getHotKey(map.get(nativeKeyEvent.getKeyCode())).preformAction();
+        System.out.println(check.CheckActive().HKeys);
 
     }
 

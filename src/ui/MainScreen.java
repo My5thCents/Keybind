@@ -17,6 +17,7 @@ import model.profiles.entities.profile;
 import org.jnativehook.NativeHookException;
 
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -25,6 +26,7 @@ import java.util.Hashtable;
  */
 
 public class MainScreen extends Pane {
+    saveEverything save = new saveEverything();
     Stage primaryStage = new Stage();
     Scene mainScreenScene = new Scene(this, 800, 800);
     int id = 0;
@@ -35,11 +37,19 @@ public class MainScreen extends Pane {
     String prevProfile;
 
 
-    public MainScreen() {
+    public MainScreen() throws IOException {
         this.setStyle("-fx-background-color: #99aab5;");
         primaryStage.setTitle("");
         primaryStage.setScene(mainScreenScene);
         primaryStage.show();
+        save.getFromFile();
+        primaryStage.setOnCloseRequest(e -> {
+            try {
+                save.saveToFile();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
 
 
 
@@ -138,8 +148,23 @@ public class MainScreen extends Pane {
                 "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
         profileSelector.setLayoutX(89);
         profileSelector.setLayoutY(45);
+        profileSelector.setValue("Default");
         setActive setActive = new setActive();
-        profileSelector.setOnAction(e -> setActive.SetActive(profileSelector.getValue()));
+        setActive.SetActive("Default");
+        checkActive check = new checkActive();
+        profileSelector.setOnAction(e -> {
+            for (int i=0; i<this.id; i++){
+                OSInterface.getInstance().unregisterHotkey(i);
+            }
+            setActive.SetActive(profileSelector.getValue());
+            this.id=0;
+            for (Integer keyCode: check.CheckActive().HKeys.keySet()){
+                Hotkey hotkey = new Hotkey(keyCode, id, 0);
+                OSInterface.getInstance().registerHotkey(hotkey);
+                id++;
+            }
+
+        });
 
         /*
         Button to add new profile
@@ -488,13 +513,18 @@ public class MainScreen extends Pane {
         save.setOnAction(e -> {
             new addProfile(profileScreen.getProfileName());
             profileSelector.getItems().add(profileScreen.getProfileName());
+            profileSelector.setValue(profileScreen.getProfileName());
+            setActive setActive = new setActive();
+            setActive.SetActive(profileScreen.getProfileName());
             primaryStage.setScene(mainScreenScene);
             primaryStage.setTitle("");
+
         });
         primaryStage.setTitle("Add New Profile");
         Scene profScene = new Scene(profileScreen, 800, 800);
         primaryStage.setScene(profScene);
         profileScreen.getChildren().addAll(back, save);
+
     }
 
     /**
