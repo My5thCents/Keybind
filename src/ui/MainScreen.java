@@ -13,9 +13,6 @@ import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
 import model.profiles.commands.*;
-import model.profiles.entities.profile;
-import org.jnativehook.NativeHookException;
-
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -32,7 +29,7 @@ public class MainScreen extends Pane {
     public static Hashtable<Integer, Action> dict = new Hashtable<>();
     ComboBox<String> profileSelector;
     boolean isOn = true;
-    String prevProfile;
+
 
 
     public MainScreen() {
@@ -88,6 +85,10 @@ public class MainScreen extends Pane {
         bMouseSens.setLayoutX(438);
         bMouseSens.setLayoutY(450);
 
+
+        /*
+        Button to view current bindings saved
+         */
         Button bCurrentBindings = new Button("View Current Bindings");
         bCurrentBindings.setOnAction(e -> goToCurrentBindings());
         bCurrentBindings.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
@@ -95,6 +96,17 @@ public class MainScreen extends Pane {
         bCurrentBindings.setWrapText(true);
         bCurrentBindings.setLayoutX(300);
         bCurrentBindings.setLayoutY(670);
+
+        /*
+        Button to view select running programs
+         */
+        Button bProgramsRunning = new Button("View Running Programs");
+        bProgramsRunning.setOnAction(e -> goToProgramsRunning());
+        bProgramsRunning.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
+        bProgramsRunning.setWrapText(true);
+        bProgramsRunning.setLayoutX(80);
+        bProgramsRunning.setLayoutY(670);
 
 
 
@@ -106,14 +118,11 @@ public class MainScreen extends Pane {
             checkActive check = new checkActive();
             setActive setProf = new setActive();
             if (isOn) {
-                prevProfile = check.CheckActive().name;
                 setProf.SetActive("Default");
-                profileSelector.setValue("Default");
                 isOn = false;
                 bToggle.setText("Toggle Keybinds On");
             } else {
-                setProf.SetActive(prevProfile);
-                profileSelector.setValue(prevProfile);
+                setProf.SetActive(profileSelector.getValue());
                 isOn = true;
                 bToggle.setText("Toggle Keybinds Off");
             }
@@ -139,7 +148,11 @@ public class MainScreen extends Pane {
         profileSelector.setLayoutX(89);
         profileSelector.setLayoutY(45);
         setActive setActive = new setActive();
-        profileSelector.setOnAction(e -> setActive.SetActive(profileSelector.getValue()));
+        profileSelector.setOnAction(e -> {
+            if (isOn) {
+                setActive.SetActive(profileSelector.getValue());
+            }
+        });
 
         /*
         Button to add new profile
@@ -177,7 +190,7 @@ public class MainScreen extends Pane {
         bDelProfile.setLayoutY(45);
 
 
-        this.getChildren().addAll(bKeybind, bMacro, bProgram, bMouseSens, bToggle, bCurrentBindings, profileSelector, bAddProfile, bDelProfile);
+        this.getChildren().addAll(bKeybind, bMacro, bProgram, bMouseSens, bToggle, bCurrentBindings, profileSelector, bAddProfile, bDelProfile, bProgramsRunning);
     }
 
     /**
@@ -585,6 +598,24 @@ public class MainScreen extends Pane {
 
 
     }
-
-
+    /**
+     * Function called when user wishes to view select running programs. Back returns user to the main view
+     */
+    private void goToProgramsRunning() {
+        RunningProgramsView runningProgramsView = new RunningProgramsView();
+        primaryStage.setTitle("View Running Programs");
+        Scene runningScene = new Scene(runningProgramsView, 800, 800);
+        primaryStage.setScene(runningScene);
+        //Button to go back to main view
+        Button back = new Button("Back");
+        back.setLayoutX(640);
+        back.setLayoutY(700);
+        back.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
+                "-fx-pref-width: 100px; -fx-pref-height: 50px; -fx-text-align: center;");
+        back.setOnAction(e -> {
+            primaryStage.setScene(mainScreenScene);
+            primaryStage.setTitle("");
+        });
+        runningProgramsView.getChildren().addAll(back);
+    }
 }
