@@ -20,6 +20,9 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Map;
+
+import static ui.KeyValueMap.matchKey;
 
 /**
  * mainScreen is the main UI page for the program. All user functions start here.
@@ -430,6 +433,11 @@ public class MainScreen extends Pane {
      * Display the current keybindings in the current profile
      */
     public void goToCurrentBindings(){
+        KeyValueMap key = new KeyValueMap();
+        Hashtable<Integer, String> reverseMap = new Hashtable<>();
+        for(Map.Entry<String, Integer> entry: matchKey.entrySet()){
+            reverseMap.put(entry.getValue(), entry.getKey());
+        }
         checkActive check = new checkActive();
         BlankView BV = new BlankView();
         primaryStage.setTitle("Currently Bound Keys");
@@ -463,11 +471,11 @@ public class MainScreen extends Pane {
             list.append(KeyEvent.getKeyText(i));
             list.append("\tAction(s): ");
             for(Integer j: check.CheckActive().getHotKey(i).getKeys()){
-                list.append(KeyEvent.getKeyText(j));
+                list.append(reverseMap.get(j));
                 list.append(" ");
             }
             list.append("\n\n");
-            Button remove = new Button("Remove");;
+            Button remove = new Button("Remove");
             remove.setLayoutX(700);
             remove.setLayoutY(baseY);
             baseY += 44;
