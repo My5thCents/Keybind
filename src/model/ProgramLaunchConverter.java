@@ -49,4 +49,17 @@ public class ProgramLaunchConverter {
     }
 
 
+    /**
+     * Makes a new Arraylist Without the leading Idenification of 10000. so the path is correct.
+     * @param actionList an Arraylist with a leading 10000.
+     * @return an Arraylist without a leading 10000.
+     */
+    public static ArrayList<Integer> RemoveIdentification(ArrayList<Integer> actionList){
+        ArrayList<Integer> new_actionList = new ArrayList<Integer>();
+        for(int i = 1; i< actionList.size(); i = i +1){
+            new_actionList.add(actionList.get(i));
+        }
+        return new_actionList;
+    }
+
 }
