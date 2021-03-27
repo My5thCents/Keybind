@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
+import model.ProgramLaunchConverter;
 import model.profiles.commands.*;
 import model.profiles.entities.profile;
 import org.jnativehook.NativeHookException;
@@ -600,9 +601,9 @@ public class MainScreen extends Pane {
             try {
                 Hotkey newHotkey = new Hotkey(programView.getKeyToBind(), id, Modifier.NONE.val());
                 // Need to add functionality to add open program as keybind action
-                System.out.println(programView.getProgramPath());
+                String str = programView.getProgramPath();
                 ArrayList<Integer> actionList = new ArrayList<>();
-                //actionList.add(action.getKeyCode());
+                actionList = ProgramLaunchConverter.StringToInt(str);
                 Action newAction = new Action(actionList);
                 if (check.CheckActive().hasHotkey(newHotkey.getKeyCode())){
                     Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
