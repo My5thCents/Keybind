@@ -374,6 +374,8 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
                 setKeyInput(inputs, i + inputSize, key, false);
             }
         }
+
+        keySendQueue.add(inputs);
     }
 
     /**
