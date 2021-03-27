@@ -6,6 +6,7 @@ import model.profiles.commands.saveEverything;
 import com.sun.jna.win32.W32APIOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -269,46 +270,109 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
 
             // Mouse input
             if (keyCode < 7 && keyCode != 3) {
-                int mouseDown = MouseButtons.getDown(keyCode);
-                int mouseUp = MouseButtons.getUp(keyCode);
-                int xButton = MouseButtons.getXButton(keyCode);
-
-                // Mouse button input
-                inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_MOUSE);
-                inputs[0].input.setType("mi");
-
-                if (xButton != 0) {
-                    inputs[0].input.mi.mouseData = new WinDef.DWORD(xButton);
+                if (release) {
+                    setMouseInput(inputs, 0, keyCode, false);
                 }
-
-                if (release)
-                    inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseUp);
-                else
-                    inputs[0].input.mi.dwFlags = new WinDef.DWORD(mouseDown | mouseUp);
-
-                inputs[0].input.mi.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
-
+                else {
+                    setMouseInput(inputs, 0, keyCode, true);
+                    setMouseInput(inputs, 1, keyCode, false);
+                }
             }
             // Keyboard input
             else {
-                if (!release) {
-                    // Key down input
-                    inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
-                    inputs[0].input.setType("ki");
-                    inputs[0].input.ki.wVk = new WinDef.WORD(keyCode);
-                    inputs[0].input.ki.dwFlags = new WinDef.DWORD(0);
-                    inputs[0].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+                if (release) {
+                    setKeyInput(inputs, 0, keyCode, false);
                 }
-
-                // Key up input
-                inputs[1].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
-                inputs[1].input.setType("ki");
-                inputs[1].input.ki.wVk = new WinDef.WORD(keyCode);
-                inputs[1].input.ki.dwFlags = new WinDef.DWORD(WinUser.KEYBDINPUT.KEYEVENTF_KEYUP);
-                inputs[1].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+                else {
+                    setKeyInput(inputs, 0, keyCode, true);
+                    setKeyInput(inputs, 1, keyCode, false);
+                }
             }
 
             keySendQueue.add(inputs);
+        }
+    }
+
+    /**
+     * Sets the given input to a mouse input at the index.
+     * @param inputs The array of inputs.
+     * @param index The index in which to set the input.
+     * @param key The key to set the input to.
+     * @param isKeyDown Is the key a down input?
+     */
+    protected void setMouseInput(WinUser.INPUT[] inputs, int index, int key, boolean isKeyDown) {
+        // Invalid key
+        if (key < 1 || key == 3 || key > 6 || index >= inputs.length)
+            return;
+
+        int mouseDown = MouseButtons.getDown(key);
+        int mouseUp = MouseButtons.getUp(key);
+        int xButton = MouseButtons.getXButton(key);
+        
+        inputs[index].type = new WinUser.DWORD(WinUser.INPUT.INPUT_MOUSE);
+        inputs[index].input.setType("mi");
+
+        if (xButton != 0) {
+            inputs[index].input.mi.mouseData = new WinDef.DWORD(xButton);
+        }
+
+        if (isKeyDown)
+            inputs[index].input.mi.dwFlags = new WinDef.DWORD(mouseDown);
+        else
+            inputs[index].input.mi.dwFlags = new WinDef.DWORD(mouseUp);
+
+        inputs[index].input.mi.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+    }
+
+    /**
+     * Sets the given input to a keyboard input at the index.
+     * @param inputs The array of inputs.
+     * @param index The index in which to set the input.
+     * @param key The key to set the input to.
+     * @param isKeyDown Is the key a down input?
+     */
+    protected void setKeyInput(WinUser.INPUT[] inputs, int index, int key, boolean isKeyDown) {
+        // Invalid key
+        if (key < 7 || key > 254 || index >= inputs.length)
+            return;
+
+        int KEYDOWN = 0;
+
+        inputs[index].type = new WinUser.DWORD(WinUser.INPUT.INPUT_KEYBOARD);
+        inputs[index].input.setType("ki");
+        inputs[index].input.ki.wVk = new WinDef.WORD(key);
+        if (isKeyDown) {
+            inputs[index].input.ki.dwFlags = new WinDef.DWORD(KEYDOWN);
+        }
+        else {
+            inputs[index].input.ki.dwFlags = new WinDef.DWORD(WinUser.KEYBDINPUT.KEYEVENTF_KEYUP);
+        }
+        inputs[index].input.ki.dwExtraInfo = new BaseTSD.ULONG_PTR(0);
+    }
+
+    /**
+     * Holds then releases the given list of keys.
+     * @param keys The keys to be held and released.
+     */
+    public void holdSendKeys(ArrayList<Integer> keys) {
+        int inputSize = keys.size();
+        WinUser.INPUT[] inputs = (WinUser.INPUT[]) new WinUser.INPUT().toArray(inputSize * 2);
+
+        for (int i = 0; i < inputSize; i++) {
+            int key = keys.get(i);
+            
+            if (key < 1 || key > 254)
+                continue;
+
+            // Mouse input
+            if (key < 7 && key != 3) {
+                setMouseInput(inputs, i, key, true);
+                setMouseInput(inputs, i + inputSize, key, false);
+            }
+            else {
+                setKeyInput(inputs, i, key, true);
+                setKeyInput(inputs, i + inputSize, key, false);
+            }
         }
     }
 
