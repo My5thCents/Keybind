@@ -30,4 +30,23 @@ public class ProgramLaunchConverter {
 
         return actionList;
     }
+
+
+    /**
+     * Converts ArrayList<Integer> back into a string of the path.
+     * @param actionList an ArrayList who's value's represent character's in US-ASCII
+     * @return a string of the file path.
+     */
+    public static String IntToString(ArrayList<Integer> actionList){
+        String str = "";
+
+        for(int i = 0; i< actionList.size(); i = i +1) {
+            int temp = actionList.get(i);
+            String c = Character.toString((char) temp);
+            str += c;
+        }
+        return str;
+    }
+
+
 }
