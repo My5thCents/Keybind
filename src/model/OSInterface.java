@@ -266,47 +266,12 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
     public void sendKey(int keyCode, boolean release) {
         if (keyCode > 0 && keyCode < 255) {
             WinUser.INPUT[] inputs = (WinUser.INPUT[]) new WinUser.INPUT().toArray(2);
-            final int LEFTDOWN = 0x0002;
-            final int LEFTUP = 0x0004;
-            final int RIGHTDOWN = 0x0008;
-            final int RIGHTUP = 0x0010;
-            final int MIDDLEDOWN = 0x0020;
-            final int MIDDLEUP = 0x0040;
-            final int XDOWN = 0x0080;
-            final int XUP = 0x0100;
 
             // Mouse input
             if (keyCode < 7 && keyCode != 3) {
-                int mouseDown = 0;
-                int mouseUp = 0;
-                int xButton = 0;
-
-                switch (keyCode) {
-                    case 1:
-                        mouseDown = LEFTDOWN;
-                        mouseUp = LEFTUP;
-                        break;
-                    case 2:
-                        mouseDown = RIGHTDOWN;
-                        mouseUp = RIGHTUP;
-                        break;
-                    case 4:
-                        mouseDown = MIDDLEDOWN;
-                        mouseUp = MIDDLEUP;
-                        break;
-                    case 5:
-                        mouseDown = XDOWN;
-                        mouseUp = XUP;
-                        xButton = 0x0001;
-                        break;
-                    case 6:
-                        mouseDown = XDOWN;
-                        mouseUp = XUP;
-                        xButton = 0x0002;
-                    default:
-                        System.err.println("Invalid sendKey switch state!");
-                        break;
-                }
+                int mouseDown = MouseButtons.getDown(keyCode);
+                int mouseUp = MouseButtons.getUp(keyCode);
+                int xButton = MouseButtons.getXButton(keyCode);
 
                 // Mouse button input
                 inputs[0].type = new WinUser.DWORD(WinUser.INPUT.INPUT_MOUSE);
