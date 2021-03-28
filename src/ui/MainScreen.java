@@ -139,7 +139,6 @@ public class MainScreen extends Pane {
                 isOn = false;
                 bToggle.setText("Toggle Keybinds On");
             } else {
-                System.out.println(id);
                 setActive setActive = new setActive();
                 setProf.SetActive(profileSelector.getValue());
                 isOn = true;
