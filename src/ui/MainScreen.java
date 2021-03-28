@@ -12,16 +12,22 @@ import javafx.stage.Stage;
 import model.Hotkey;
 import model.Modifier;
 import model.OSInterface;
+import model.ProgramLaunchConverter;
 import model.profiles.commands.*;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.Map;
+
+import static ui.KeyValueMap.matchKey;
 
 /**
  * mainScreen is the main UI page for the program. All user functions start here.
  */
 
 public class MainScreen extends Pane {
+    saveEverything save = new saveEverything();
     Stage primaryStage = new Stage();
     Scene mainScreenScene = new Scene(this, 800, 800);
     int id = 0;
@@ -32,11 +38,19 @@ public class MainScreen extends Pane {
 
 
 
-    public MainScreen() {
+    public MainScreen() throws IOException {
         this.setStyle("-fx-background-color: #99aab5;");
         primaryStage.setTitle("");
         primaryStage.setScene(mainScreenScene);
         primaryStage.show();
+        save.getFromFile();
+        primaryStage.setOnCloseRequest(e -> {
+            try {
+                save.saveToFile();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        });
 
 
 
@@ -147,11 +161,22 @@ public class MainScreen extends Pane {
                 "-fx-pref-width: 200px; -fx-pref-height: 50px; -fx-text-align: center;");
         profileSelector.setLayoutX(89);
         profileSelector.setLayoutY(45);
+        profileSelector.setValue("Default");
         setActive setActive = new setActive();
+        setActive.SetActive("Default");
+        checkActive check = new checkActive();
         profileSelector.setOnAction(e -> {
-            if (isOn) {
-                setActive.SetActive(profileSelector.getValue());
+            for (int i=0; i<this.id; i++){
+                OSInterface.getInstance().unregisterHotkey(i);
             }
+            setActive.SetActive(profileSelector.getValue());
+            this.id=0;
+            for (Integer keyCode: check.CheckActive().HKeys.keySet()){
+                Hotkey hotkey = new Hotkey(keyCode, id, 0);
+                OSInterface.getInstance().registerHotkey(hotkey);
+                id++;
+            }
+
         });
 
         /*
@@ -197,6 +222,7 @@ public class MainScreen extends Pane {
      * Function called when user wishes to make a new keybind. Opens the KeybindView class in the stage.
      */
     private void goToKeybind() {
+        checkActive check = new checkActive();
         KeybindView KBV = new KeybindView();
         primaryStage.setTitle("Set a Keybind");
         Scene testScene = new Scene(KBV, 800, 800);
@@ -225,14 +251,14 @@ public class MainScreen extends Pane {
                 ArrayList<Integer> actionList = new ArrayList<>();
                 actionList.add(action.getKeyCode());
                 Action newAction = new Action(actionList);
-                if (dict.containsKey(newHotkey.getKeyCode())){
+                if (check.CheckActive().hasHotkey(newHotkey.getKeyCode())){
                     Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
                     alert.show();
                     primaryStage.setScene(mainScreenScene);
                     primaryStage.setTitle("");
                     return;
                 }
-                dict.put(newHotkey.getKeyCode(), newAction);
+                check.CheckActive().addHotkey(newHotkey.getKeyCode(), newAction);
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             } catch(Exception exception) {
@@ -254,6 +280,7 @@ public class MainScreen extends Pane {
      * Function called when user wishes to make a new Macro. Opens the MacroView class in the stage.
      */
     private void goToMacro() {
+        checkActive check = new checkActive();
         KeybindView KBV = new KeybindView();
         //Button to go back to main view
         Button back = new Button("Back");
@@ -276,7 +303,7 @@ public class MainScreen extends Pane {
             try {
                 Hotkey newHotkey = new Hotkey(KBV.getKeyToBind(), id, Modifier.NONE.val());
                 Hotkey action = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
-                if (dict.containsKey(newHotkey.getKeyCode())) {
+                if (check.CheckActive().hasHotkey(newHotkey.getKeyCode())) {
                     Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
                     alert.show();
                     primaryStage.setScene(mainScreenScene);
@@ -307,7 +334,7 @@ public class MainScreen extends Pane {
                 ArrayList<Integer> actionList = new ArrayList<>();
                 actionList.add(action.getKeyCode());
                 Action newAction = new Action(actionList);
-                dict.put(newHotkey.getKeyCode(), newAction);
+                check.CheckActive().addHotkey(newHotkey.getKeyCode(), newAction);
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
                 primaryStage.setScene(mainScreenScene);
@@ -331,6 +358,7 @@ public class MainScreen extends Pane {
      * @param added list of added keys
      */
     public void goToAddToMacro(Hotkey hotkey, ArrayList<Integer> added){
+        checkActive check = new checkActive();
         MacroView KBV = new MacroView();
         //Button to go back to main view
         Button back = new Button("Back");
@@ -389,14 +417,14 @@ public class MainScreen extends Pane {
                 Hotkey action1 = new Hotkey(KBV.getKeyAction(), id, Modifier.NONE.val());
                 added.add(action1.getKeyCode());
                 Action newAction = new Action(added);
-                dict.put(hotkey.getKeyCode(), newAction);
+                check.CheckActive().addHotkey(hotkey.getKeyCode(), newAction);
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(hotkey);
                 primaryStage.setScene(mainScreenScene);
                 primaryStage.setTitle("");
             } catch (Exception exception){
                 Action newAction = new Action(added);
-                dict.put(hotkey.getKeyCode(), newAction);
+                check.CheckActive().addHotkey(hotkey.getKeyCode(), newAction);
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(hotkey);
                 primaryStage.setScene(mainScreenScene);
@@ -415,6 +443,12 @@ public class MainScreen extends Pane {
      * Display the current keybindings in the current profile
      */
     public void goToCurrentBindings(){
+        KeyValueMap key = new KeyValueMap();
+        Hashtable<Integer, String> reverseMap = new Hashtable<>();
+        for(Map.Entry<String, Integer> entry: matchKey.entrySet()){
+            reverseMap.put(entry.getValue(), entry.getKey());
+        }
+        checkActive check = new checkActive();
         BlankView BV = new BlankView();
         primaryStage.setTitle("Currently Bound Keys");
         Scene testScene = new Scene(BV, 800, 800);
@@ -442,23 +476,23 @@ public class MainScreen extends Pane {
         text.setLayoutX(100);
         StringBuilder list = new StringBuilder("");
         //Text to
-        for(Integer i: dict.keySet()){
+        for(Integer i: check.CheckActive().HKeys.keySet()){
             list.append("Key: ");
             list.append(KeyEvent.getKeyText(i));
             list.append("\tAction(s): ");
-            for(Integer j: dict.get(i).getKeys()){
-                list.append(KeyEvent.getKeyText(j));
+            for(Integer j: check.CheckActive().getHotKey(i).getKeys()){
+                list.append(reverseMap.get(j));
                 list.append(" ");
             }
             list.append("\n\n");
-            Button remove = new Button("Remove");;
+            Button remove = new Button("Remove");
             remove.setLayoutX(700);
             remove.setLayoutY(baseY);
             baseY += 44;
             remove.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 12; -fx-vertical-align: middle; " +
                     "-fx-pref-width: 75px; -fx-pref-height: 30px; -fx-text-align: center;");
             remove.setOnAction(e -> {
-                dict.remove(i);
+                check.CheckActive().removeHotKey(i);
                 primaryStage.setScene(mainScreenScene);
                 primaryStage.setTitle("");
                 OSInterface.getInstance().unregisterHotkey(i);
@@ -497,13 +531,18 @@ public class MainScreen extends Pane {
         save.setOnAction(e -> {
             new addProfile(profileScreen.getProfileName());
             profileSelector.getItems().add(profileScreen.getProfileName());
+            profileSelector.setValue(profileScreen.getProfileName());
+            setActive setActive = new setActive();
+            setActive.SetActive(profileScreen.getProfileName());
             primaryStage.setScene(mainScreenScene);
             primaryStage.setTitle("");
+
         });
         primaryStage.setTitle("Add New Profile");
         Scene profScene = new Scene(profileScreen, 800, 800);
         primaryStage.setScene(profScene);
         profileScreen.getChildren().addAll(back, save);
+
     }
 
     /**
@@ -545,6 +584,7 @@ public class MainScreen extends Pane {
      * Function called when user wishes to make a new keybind. Opens the KeybindView class in the stage.
      */
     private void goToAddProgram() {
+        checkActive check = new checkActive();
         OpenProgramView programView = new OpenProgramView();
         primaryStage.setTitle("Bind a Key to Open Program");
         Scene programScene = new Scene(programView, 800, 800);
@@ -570,18 +610,18 @@ public class MainScreen extends Pane {
             try {
                 Hotkey newHotkey = new Hotkey(programView.getKeyToBind(), id, Modifier.NONE.val());
                 // Need to add functionality to add open program as keybind action
-                System.out.println(programView.getProgramPath());
+                String str = programView.getProgramPath();
                 ArrayList<Integer> actionList = new ArrayList<>();
-                //actionList.add(action.getKeyCode());
+                actionList = ProgramLaunchConverter.StringToInt(str);
                 Action newAction = new Action(actionList);
-                if (dict.containsKey(newHotkey.getKeyCode())){
+                if (check.CheckActive().hasHotkey(newHotkey.getKeyCode())){
                     Alert alert = new Alert(Alert.AlertType.ERROR, "A binding already exists for that key\nRemove key before reassigning");
                     alert.show();
                     primaryStage.setScene(mainScreenScene);
                     primaryStage.setTitle("");
                     return;
                 }
-                dict.put(newHotkey.getKeyCode(), newAction);
+                check.CheckActive().addHotkey(newHotkey.getKeyCode(), newAction);
                 id++;
                 boolean register = OSInterface.getInstance().registerHotkey(newHotkey);
             } catch(Exception exception) {
