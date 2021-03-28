@@ -133,12 +133,22 @@ public class MainScreen extends Pane {
             setActive setProf = new setActive();
             if (isOn) {
                 setProf.SetActive("Default");
+                for (int i=0; i<this.id; i++){
+                    OSInterface.getInstance().unregisterHotkey(i);
+                }
                 isOn = false;
                 bToggle.setText("Toggle Keybinds On");
             } else {
+                setActive setActive = new setActive();
                 setProf.SetActive(profileSelector.getValue());
                 isOn = true;
                 bToggle.setText("Toggle Keybinds Off");
+                setActive.SetActive(profileSelector.getValue());
+                for (Integer keyCode: check.CheckActive().HKeys.keySet()){
+                    Hotkey hotkey = new Hotkey(keyCode, id, 0);
+                    OSInterface.getInstance().registerHotkey(hotkey);
+                    id++;
+                }
             }
         });
         bToggle.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 16; -fx-vertical-align: middle; " +
