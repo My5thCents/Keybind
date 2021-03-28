@@ -166,7 +166,7 @@ public class MainScreen extends Pane {
         setActive.SetActive("Default");
         checkActive check = new checkActive();
         profileSelector.setOnAction(e -> {
-            for (int i=0; i<this.id; i++){
+            for (int i=0; i<=this.id; i++){
                 OSInterface.getInstance().unregisterHotkey(i);
             }
             setActive.SetActive(profileSelector.getValue());
