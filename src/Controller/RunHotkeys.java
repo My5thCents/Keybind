@@ -51,6 +51,11 @@ public class RunHotkeys implements Runnable {
      */
     public void stop() {
         stop = true;
+        try {
+            GlobalScreen.unregisterNativeHook();
+        } catch (NativeHookException e) {
+            System.err.println("Hook unregister interruption.");
+        }
      }
 
 
