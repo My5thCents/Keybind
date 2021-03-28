@@ -2,7 +2,12 @@ import javafx.application.Application;
 import javafx.stage.Stage;
 import Controller.RunHotkeys;
 import model.OSInterface;
+import org.jnativehook.NativeHookException;
 import ui.MainScreen;
+import model.profiles.commands.saveEverything;
+
+import java.io.File;
+import java.io.IOException;
 
 public class Main extends Application {
 
@@ -10,18 +15,15 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         // Initialize at main UI screen
         new MainScreen();
-
-
+        saveEverything start = new saveEverything();
+        start.getFromFile();
     }
 
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NativeHookException, IOException {
         RunHotkeys runHotkeys = new RunHotkeys();
         Thread thread = new Thread(OSInterface.getInstance());
-        Thread demoThread = new Thread(runHotkeys);
+        new Thread(runHotkeys);
         thread.start();
-        demoThread.start();
-
         launch(args);
 
         OSInterface.getInstance().stop();

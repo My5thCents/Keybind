@@ -1,12 +1,12 @@
 package model.profiles.entities;
-import model.profiles.commands.*;
+import Controller.Action;
 import model.Hotkey;
 
-import java.util.TreeMap;
+import java.util.Hashtable;
 
 public class profile {
     public String name;
-    private static TreeMap<Integer,Hotkey> HKeys;
+    public Hashtable<Integer, Action> HKeys;
     /**
      * Initializes an instance of a profile with no hotkeys
      * @param name the name of our profile
@@ -14,7 +14,7 @@ public class profile {
     public profile(String name) {
         this.name = name;
         //Organized by their ID
-        HKeys = new TreeMap<Integer, Hotkey>();
+        HKeys = new Hashtable<>();
     }
     /**
      * Get the name of the entities.profile
@@ -26,37 +26,37 @@ public class profile {
     }
     /**
      * Get a hotkey using its ID
-     * @param id the unique ID for the hotkey in our profile
+     * @param keyCode the unique ID for the hotkey in our profile
      * @return the hot key with the given id
      */
-    public Hotkey getHotKey(int id){
-        if(!HKeys.containsKey(id)){
+    public Action getHotKey(int keyCode){
+        if(!HKeys.containsKey(keyCode)){
             return null;
         }
-        return HKeys.get(id);
+        return HKeys.get(keyCode);
     }
 
     /**
      * Check if a hotkey exists in our profilr
-     * @param id id of the hotkey to check for
+     * @param keyCode id of the hotkey to check for
      * @return true if it's in our profile false if not
      */
-    public boolean hasHotkey(int id){
-        return HKeys.containsKey(id);
+    public boolean hasHotkey(int keyCode){
+        return HKeys.containsKey(keyCode);
     }
     /**
      * Adds a hotkey to our Treemap
-     * @param h hotkey to add
+     * @param a hotkey to add
      */
-    public void addHotkey(Hotkey h){
-        HKeys.put(h.getID(),h);
+    public void addHotkey(int keyCode, Action a){
+        HKeys.put(keyCode, a);
     }
 
     /**
      * Remove a hotkey from our TreeMap
-     * @param id the id of the hotkey to remove
+     * @param keyCode the id of the hotkey to remove
      */
-    public void removeHotKey(int id){
-        HKeys.remove(id);
+    public void removeHotKey(int keyCode){
+        HKeys.remove(keyCode);
     }
 }

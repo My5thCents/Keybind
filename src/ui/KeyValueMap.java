@@ -6,7 +6,7 @@ import java.util.Hashtable;
  * keyValueMap initializes a Hashtable which maps the string value in the UI to a Windows Integer key code.
  */
 class KeyValueMap {
-    Hashtable<String, Integer> matchKey;
+    static Hashtable<String, Integer> matchKey;
 
     public KeyValueMap() {
         matchKey = new Hashtable<String, Integer>();
@@ -107,7 +107,10 @@ class KeyValueMap {
         matchKey.put("Media play/pause", 0xB3);
         matchKey.put("Media next track", 0xB0);
         matchKey.put("Media previous track", 0xB1);
-
+        matchKey.put("Move Mouse Left", 1000);
+        matchKey.put("Move Mouse Right", 1001);
+        matchKey.put("Move Mouse Up", 1002);
+        matchKey.put("Move Mouse Down", 1003);
     }
 
     /**

@@ -8,3 +8,9 @@ Maven: net.java.dev.jna:jna-platform:5.7.02
   
 ControlsFX 8.40.182  
 Maven: org.controlsfx:controlsfx:8.40.182  
+
+Gson 2.2.4  
+Maven: com.google.code.gson:gson:2.2.4
+
+JNativeHook 2.0.2   
+Maven: com.1stleg:jnativehook:2.0.2
