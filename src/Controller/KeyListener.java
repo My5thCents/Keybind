@@ -21,8 +21,8 @@ public class KeyListener implements NativeKeyListener {
     public void nativeKeyPressed(NativeKeyEvent nativeKeyEvent) {
         //if key pressed is in dictionary
         checkActive check = new checkActive();
-        if (check.CheckActive().hasHotkey(map.get(nativeKeyEvent.getKeyCode())))
-            check.CheckActive().getHotKey(map.get(nativeKeyEvent.getKeyCode())).preformAction();
+        if (check.CheckActive().hasHotkey(nativeKeyEvent.getRawCode()))
+            check.CheckActive().getHotKey(nativeKeyEvent.getRawCode()).preformAction();
 
     }
 
