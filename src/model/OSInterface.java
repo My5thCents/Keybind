@@ -186,7 +186,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         while (!hotkeys.isEmpty()) {
             Hotkey hotkey = hotkeys.remove();
             if (!registerHotkeyThread(hotkey))
-                System.err.println("Error registering hotkey: " + hotkey.toString());
+                System.err.println("Error registering hotkey: " + hotkey.getID());
         }
     }
 
@@ -197,7 +197,7 @@ public class OSInterface implements HotkeyDetector, HotkeyRegistration, InputEmu
         while (!ids.isEmpty()) {
             int id = ids.remove();
             if (!unregisterHotkeyThread(id))
-                System.err.println("Error registering hotkey ID: " + id);
+                System.err.println("Error unregistering hotkey ID: " + id);
         }
     }
 
