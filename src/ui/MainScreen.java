@@ -139,6 +139,7 @@ public class MainScreen extends Pane {
                 isOn = false;
                 bToggle.setText("Toggle Keybinds On");
             } else {
+                System.out.println(id);
                 setActive setActive = new setActive();
                 setProf.SetActive(profileSelector.getValue());
                 isOn = true;
@@ -180,7 +181,6 @@ public class MainScreen extends Pane {
                 OSInterface.getInstance().unregisterHotkey(i);
             }
             setActive.SetActive(profileSelector.getValue());
-            this.id=0;
             for (Integer keyCode: check.CheckActive().HKeys.keySet()){
                 Hotkey hotkey = new Hotkey(keyCode, id, 0);
                 OSInterface.getInstance().registerHotkey(hotkey);
