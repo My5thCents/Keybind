@@ -475,7 +475,7 @@ public class MainScreen extends Pane {
         text.setLayoutY(130);
         text.setLayoutX(100);
         StringBuilder list = new StringBuilder("");
-        //Text to
+        int counter = 0;
         for(Integer i: check.CheckActive().HKeys.keySet()){
             list.append("Key: ");
             list.append(KeyEvent.getKeyText(i));
@@ -491,13 +491,15 @@ public class MainScreen extends Pane {
             baseY += 44;
             remove.setStyle("-fx-background-color: #2c2f33; -fx-text-fill: white; -fx-font-size: 12; -fx-vertical-align: middle; " +
                     "-fx-pref-width: 75px; -fx-pref-height: 30px; -fx-text-align: center;");
+            int finalCounter = counter;
             remove.setOnAction(e -> {
                 check.CheckActive().removeHotKey(i);
                 primaryStage.setScene(mainScreenScene);
                 primaryStage.setTitle("");
-                OSInterface.getInstance().unregisterHotkey(i);
+                OSInterface.getInstance().unregisterHotkey(finalCounter);
             });
             BV.getChildren().add(remove);
+            counter += 1;
         }
         text.setStyle("-fx-text-fill: #2c2f33; -fx-font-size: 15;");
         text.setText(String.valueOf(list));
