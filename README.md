@@ -24,7 +24,7 @@ You can even create multiple different profiles, allowing you to switch between 
 ZetaKey’s source code can be download from the release page. Alternatively, a program version can be download from this link.
 https://www.dropbox.com/sh/jhf85bldkzicqc1/AAA1tSLJ06OpnrPscDXir5-da?dl=0
 
-#How-to-use
+# Usage
 
 When you start the program, you will be presented with the Main Screen. The Main Screen allows for navigation to all ZetaKey features.
  
