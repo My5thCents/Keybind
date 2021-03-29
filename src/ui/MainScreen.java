@@ -209,9 +209,9 @@ public class MainScreen extends Pane {
             if (alert.getResult() == ButtonType.YES) {
                 deleteProfile delP = new deleteProfile();
                 checkActive active = new checkActive();
-                if (!active.CheckActive().getName().equals("Default")) {
+                if (!profileSelector.getValue().equals("Default")) {
                     profileSelector.getItems().remove(active.CheckActive().getName());
-                    delP.DeleteProfile(active.CheckActive().getName());
+                    delP.DeleteProfile(profileSelector.getValue());
                     setActive set = new setActive();
                     set.SetActive("Default");
                 }
