@@ -3,10 +3,11 @@ import Controller.Action;
 import model.Hotkey;
 
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 
 public class profile {
     public String name;
-    public Hashtable<Integer, Action> HKeys;
+    public LinkedHashMap<Integer, Action> HKeys;
     /**
      * Initializes an instance of a profile with no hotkeys
      * @param name the name of our profile
@@ -14,7 +15,7 @@ public class profile {
     public profile(String name) {
         this.name = name;
         //Organized by their ID
-        HKeys = new Hashtable<>();
+        HKeys = new LinkedHashMap<>();
     }
     /**
      * Get the name of the entities.profile

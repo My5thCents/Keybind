@@ -484,15 +484,21 @@ public class MainScreen extends Pane {
         text.setLayoutY(130);
         text.setLayoutX(100);
         StringBuilder list = new StringBuilder("");
-        int counter = 0;
+        int counter = id - check.CheckActive().HKeys.size() ;
         for(Integer i: check.CheckActive().HKeys.keySet()){
             list.append("Key: ");
             list.append(KeyEvent.getKeyText(i));
             list.append("\tAction(s): ");
-            for(Integer j: check.CheckActive().getHotKey(i).getKeys()){
-                list.append(reverseMap.get(j));
-                list.append(" ");
+            if(check.CheckActive().HKeys.get(i).getKeys().get(0) == 10000){
+                list.append(ProgramLaunchConverter.IntToString((check.CheckActive().HKeys.get(i).getKeys())));
             }
+            else{
+                for(Integer j: check.CheckActive().getHotKey(i).getKeys()){
+                    list.append(reverseMap.get(j));
+                    list.append(" ");
+                }
+            }
+
             list.append("\n\n");
             Button remove = new Button("Remove");
             remove.setLayoutX(700);
